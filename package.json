@@ -1,0 +1,28 @@
+{
+  "name": "immortal",
+  "description": "Experimental daemon tool made in pure javascript",
+  "version": "0.1.0",
+  "author": "Andreas Madsen <amwebdk@gmail.com>",
+  "scripts": {
+    "test": "vows test/simple/* --spec --isolate"
+  },
+  "main": "./lib/module.js",
+  "repository" : {
+    "type": "git",
+    "url": "git://github.com/AndreasMadsen/immortal.git"
+  },
+  "keywords": [
+    "deamon",
+    "unattached",
+    "process",
+    "immortal",
+    "restart"
+  ],
+  "devDependencies": {
+    "vows" :  "0.6.x"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": "0.7.x"
+  }
+}
