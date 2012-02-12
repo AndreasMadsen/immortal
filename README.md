@@ -24,20 +24,69 @@ npm install immortal
 ## API documentation
 
 ```JavaScript
-  var immortal = require('immortal');
+var immortal = require('immortal');
 ```
 
-### Start a unattached deamon process
+### Start a new process
+
+To start a new process simply use `immortal.start(file, [args], [options])`.
+
+This function will start a new process, but unlike the `.spawn()` or `.fork()` method
+given my node core, the new process will be detached from its parent. Allowing the parent
+to die graceful.
+
+The function takes an optional argument there can contain the following properties:
+
+* **exec:** the file there will be executed - it will default to process.execPath
+* **env:** the envorment the new process will run in
+* **mode:** this can be `development`, `unattached` or `daemon`.
+ * `development`: the new process will be attached to its parent so all outout is
+    piped to both monitor and parent.
+ * `unattached`: this is the default, it will execute the new process unattached
+    to its parent and pipe output to monitor,
+    but process will not be keeped alive.
+ * `daemon`: the process will be unattached to its parent, output will be piped
+    to the monitor and the process will respawn when it dies.
+* **monitor:** path or name of module where a monitor module exist, this will default to an
+  simple monitor module there already exist. But it will simply log the output to a file,
+  should you wish anything more you will have to create you own.
+* **options:** this are extra options parsed to the monitor object. The default
+  monitor takes only a `output` property.
 
 ```JavaScript
-  immortal.start('./process.js', process.argv, {
-    exec: process.execPath, // in case you want to use coffee script
-    env: process.env, // all environment variables
-    stderr: './err.log', // log error output to this file
-    stdout: './out.log', // log std output to this file
-    deamon: true // run as deamon, if false then the process will only be unattached
-  });
+immortal.start('process.js', process.argv[0], {
+  exec: process.execPath,
+  env: process.env,
+  mode: 'daemon',
+  options: {
+    output: 'output.log'
+  }
+});
 ```
+
+### Monitor
+
+When createing a monitor object you should keep a stateless design in mind.
+This means you shouldn't depend on files or databases beigin properly closed.
+
+The monitor object should also **not** contain any `process.on('uncaughtException')`
+since you can't be sure if any I/O will perform as expected after this has emitted.
+And the monitor will respawn with the failure string send to it immediately after.
+
+The monitor file itself is a module file there should return a `Monitor` constructor
+there inherts from a monitor abstaction class.
+
+```JavaScript
+var util = require('util');
+var immortal = require('immortal');
+
+function Monitor() {
+  immortal.MonitorAbstract.apply(this, arguments);
+}
+util.inherits(Monitor, immortal.MonitorAbstract);
+```
+
+To be continued ... :)
 
 ##License
 
