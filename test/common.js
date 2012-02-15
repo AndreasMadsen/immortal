@@ -7,6 +7,7 @@
   "use strict";
 
   var path = require('path');
+  var fs = require('fs');
 
   // get test folders
   exports.root = path.join(path.dirname(module.filename), '../');
@@ -16,5 +17,11 @@
   exports.temp = path.join(exports.test, 'temp');
 
   exports.module = path.join(exports.root, 'lib/module.js');
+
+  // create temp file if missing
+  var exists = fs.existsSync || path.existsSync;
+  if (!exists(exports.temp)) {
+    fs.mkdirSync(exports.temp);
+  }
 
 })();
