@@ -175,6 +175,15 @@ process restart or start the `monitor.setup` will be executed with two arguments
 * `message` in case of `pump restart` this will contain all `stderr` output since
   the last monitor process started, so the reason is likely to be here.
 
+```JavaScript
+Monoitor.prototype.setup = function (why, message) {
+  this.output.write(why);
+  if (message) {
+    this.output.write(message);
+  }
+}
+```
+
 ##License
 
 **The software is license under "MIT"**
