@@ -20,14 +20,7 @@
 ```sheel
 npm install immortal
 ```
-
-## API documentation
-
-```JavaScript
-var immortal = require('immortal');
-```
-
-### Start a new process
+## How to use
 
 To start a new process simply use `immortal.start(file, [args], [options])`.
 
@@ -37,16 +30,9 @@ to die graceful.
 
 The function takes an optional argument there can contain the following properties:
 
-* **exec:** the file there will be executed - it will default to process.execPath
-* **env:** the envorment the new process will run in
-* **mode:** this can be `development`, `unattached` or `daemon`.
- * `development`: the new process will be attached to its parent so all outout is
-    piped to both monitor and parent.
- * `unattached`: this is the default, it will execute the new process unattached
-    to its parent and pipe output to monitor,
-    but process will not be keeped alive.
- * `daemon`: the process will be unattached to its parent, output will be piped
-    to the monitor and the process will respawn when it dies.
+* **exec:** the file there will be executed - it will default to process.execPath.
+* **env:** the envorment the new process will run in.
+* **stategy:** this can be `development`, `unattached` or `daemon`.
 * **monitor:** path or name of module where a monitor module exist, this will default to an
   simple monitor module there already exist. But it will simply log the output to a file,
   should you wish anything more you will have to create you own.
@@ -56,6 +42,7 @@ The function takes an optional argument there can contain the following properti
 An very simple example using the build in monitor:
 
 ```JavaScript
+var immortal = require('immortal');
 immortal.start('process.js', process.argv[0], {
   exec: process.execPath,
   env: process.env,
@@ -66,9 +53,45 @@ immortal.start('process.js', process.argv[0], {
 });
 ```
 
-### Monitor
+## Strategy
 
-#### The basic layout
+This module alow you to execute a process in 3 ways, the complexity of the strategy
+increases from `development`, `unattached` and to `daemon`.
+
+The basic stategy is that `pump` spawn a `process` and keep it alive. The output from the
+`process` is also relayed to a `Monitor` object there is `required` from the `pump`.
+
+### Development
+
+The pump is spawned directly from the `parent` and the output from both `pump` and `process`
+is relayed to the `parents` `stdout` and `stderr` channel.
+
+![Development](https://github.com/AndreasMadsen/immortal/raw/stategy/docs/Development.png)
+
+### Unattached
+
+The `parent` will spawn an `execute` process there will simply execute another process and
+kill itself immediately after. The process executed by `execute` is in this case the pump.
+Because the `pump` is unattached the output from the `process` will only be relayed to the
+`monitor`.
+
+![Unattached](https://github.com/AndreasMadsen/immortal/raw/stategy/docs/Unattched.png)
+
+### Daemon
+
+This parent will spawn an unattached `daemon` process there will spawn a `pump` process
+and keep it alive. `stderr` output from the `pump` will be stored in the `daemons` memory
+and is only send to the `monitor` through the `pump` when the `pump` respawn.
+
+In case the `daemon` should die the `pump` will execute a new `daemon` and kill itself.
+This will result in a new `pump` and `process`.
+
+![Daemon](https://github.com/AndreasMadsen/immortal/raw/stategy/docs/Daemon.png)
+
+## Monitor
+
+### The basic layout
+
 When createing a monitor object you should keep a stateless design in mind.
 This means you shouldn't depend on files or databases beigin properly closed.
 
@@ -119,7 +142,7 @@ function Monitor() {
 }
 ```
 
-#### Options check
+### Options check
 
 Because it is better to catch errors before the daemon start a `check` function should
 also be provided. If no `check` function exist it will simply be skipped.
@@ -136,7 +159,7 @@ exports.check = function (options, callback) {
 };
 ```
 
-#### Monitor events
+### Monitor events
 
 _this is likly to change, please send me API ideas._
 
@@ -161,7 +184,7 @@ This extend the previous given `Monitor` constrcutor:
   });
 ```
 
-#### Restart informations
+### Restart informations
 
 _this is likly to change, please send me API ideas._
 
