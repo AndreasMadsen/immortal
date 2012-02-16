@@ -66,7 +66,7 @@ The basic stategy is that `pump` spawn a `process` and keep it alive. The output
 The pump is spawned directly from the `parent` and the output from both `pump` and `process`
 is relayed to the `parents` `stdout` and `stderr` channel.
 
-![Development](https://github.com/AndreasMadsen/immortal/raw/stategy/docs/Development.png)
+![Development](/AndreasMadsen/immortal/raw/master/docs/Development.png)
 
 ### Unattached
 
@@ -75,7 +75,7 @@ kill itself immediately after. The process executed by `execute` is in this case
 Because the `pump` is unattached the output from the `process` will only be relayed to the
 `monitor`.
 
-![Unattached](https://github.com/AndreasMadsen/immortal/raw/stategy/docs/Unattched.png)
+![Unattched](/AndreasMadsen/immortal/raw/master/docs/Unattched.png)
 
 ### Daemon
 
@@ -86,7 +86,7 @@ and is only send to the `monitor` through the `pump` when the `pump` respawn.
 In case the `daemon` should die the `pump` will execute a new `daemon` and kill itself.
 This will result in a new `pump` and `process`.
 
-![Daemon](https://github.com/AndreasMadsen/immortal/raw/stategy/docs/Daemon.png)
+![Daemon](/AndreasMadsen/immortal/raw/master/docs/Daemon.png)
 
 ## Monitor
 
