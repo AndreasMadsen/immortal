@@ -9,11 +9,13 @@
 > code. It is the authors hope that other deamon modules will abstract upon this,
 > so the never ending deamon problem can be solved.
 
-**Be warned this is highly experminal and many features aren't implemented.**
+## Supported by
 
-## Features
- - JavaScript only
- - Works with node 0.4, 0.6 and 0.7
+|              | **Mac OS X** | **Linux** | **Windows** |
+|-------------:|:----------:|:-----------:|:-----------:|
+| **node 0.7** | confirmed  | confirmed   | unknown     |
+| **node 0.6** | confirmed  | confirmed   | unknown     |
+| **node 0.4** | unknown    | unknown     | never       |
 
 ## Installation
 

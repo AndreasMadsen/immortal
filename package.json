@@ -1,6 +1,6 @@
 {
   "name": "immortal",
-  "description": "Experimental daemon tool made in pure javascript",
+  "description": "Daemon tool made in pure javascript",
   "version": "0.2.0",
   "author": "Andreas Madsen <amwebdk@gmail.com>",
   "scripts": {
