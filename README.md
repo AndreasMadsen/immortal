@@ -20,36 +20,46 @@
 ```sheel
 npm install immortal
 ```
+
 ## How to use
 
-To start a new process simply use `immortal.start(file, [args], [options])`.
+To start a new process simply use: `immortal.start(file, [options], callback)`.
 
 This function will start a new process, but unlike the `.spawn()` or `.fork()` method
-given my node core, the new process will be detached from its parent. Allowing the parent
-to die graceful.
+given my node core, the new process will be by default be detached from its parent. And
+a monitor process will keep track of it instead. This allow the parent to die graceful.
 
-The function takes an optional argument there can contain the following properties:
+The `callback` is executed when a function argument or option is found invalid or
+when the process is executed and property deattached from its parent if necessary.
 
+The function takes an optional `options` argument there can contain the following properties:
+
+* **args:** the arguments the new process will be executed with.
 * **exec:** the file there will be executed - it will default to process.execPath.
 * **env:** the envorment the new process will run in.
 * **stategy:** this can be `development`, `unattached` or `daemon`.
 * **monitor:** path or name of module where a monitor module exist, this will default to an
   simple monitor module there already exist. But it will simply log the output to a file,
   should you wish anything more you will have to create you own.
-* **options:** this are extra options parsed to the monitor object. The default
-  monitor takes only a `output` property.
+* **options:** this are extra options parsed to the monitor object.
 
-An very simple example using the build in monitor:
+Note when using the default monitor the `options` object must contain a `output` property
+there is a existing path to output file. The file is created if it don't exist but the folders
+is not.
+
+An very simple example using the build in monitor to start a daemon:
 
 ```JavaScript
 var immortal = require('immortal');
-immortal.start('process.js', process.argv[0], {
-  exec: process.execPath,
-  env: process.env,
+var child = immortal.start('process.js', {
   mode: 'daemon',
   options: {
-    output: 'output.log'
+    output: './output.log'
   }
+}, function (err) {
+  if (err) throw err;
+
+  console.log('process started');
 });
 ```
 
@@ -118,6 +128,8 @@ When the `Monitor` constrcutor is called it will by default have:
 * `this.ready` call this function when you are ready to receive data
 * `this.stdout` a readable stream relayed from `process.stdout`
 * `this.stderr` a readable stream relayed from `process.stderr`
+* `this.error` in case the monitor was restarted all `stderr` output
+   from prevouse `pump` process is contained in this property.
 
 Note that both `.stdout` and `stderr` can't be closed because they don't origin from
 a single process.
@@ -128,10 +140,16 @@ Extended version of previous example:
 var fs = require('fs');
 function Monitor() {
   immortal.MonitorAbstract.apply(this, arguments);
+  var self = this;
 
   var output = fs.createWriteStream(this.options.output);
   output.on('open', function () {
-    this.ready();
+    if (self.error) {
+      output.write("=== An error has occurred in  the monitor === ");
+      output.write(self.error);
+      output.write("=== end error log ===");
+    }
+    self.ready();
   });
 
   this.stderr.pipe(output);
@@ -161,50 +179,33 @@ exports.check = function (options, callback) {
 
 ### Monitor events
 
-_this is likly to change, please send me API ideas._
+There are 3 events `daemon`, `monitor` or `process`, they will emit when something
+happen with the relevant process. The event handlers are executed with a state argument
+there can be either `start`, `restart` or `stop`.
 
-There are tre events, they are emitted when the process given in `immortal.start`
-spawns or die.
+Not all events support all states, this table show what's supported.
 
-* `respawn` this will be called when the process restart
-* `spawn` this will be called when the process start for first time
-* `exit` this will be called when the process die
+|             | **daemon** | **monitor** | **process** |
+|------------:|:----------:|:-----------:|:-----------:|
+|   **start** |     x      |      x      |      x      |
+| **restart** |     x      |      x      |      x      |
+|    **stop** |            |             |      x      |
 
-This extend the previous given `Monitor` constrcutor:
+Note when starting a new process using `immortal.start` the events will only be emitted with
+the `start` state once since anything else will be a restart.
 
-```JavaScript
-  this.on('respawn', function () {
-    stream.write('process restarted');
-  });
-  this.on('spawn', function () {
-    stream.write('process started');
-  });
-  this.on('exit', function () {
-    stream.write('process exited');
-  });
-```
-
-### Restart informations
-
-_this is likly to change, please send me API ideas._
-
-When the monitor or the daemon dies a deaper restart is needed. When the montor
-process restart or start the `monitor.setup` will be executed with two arguments:
-
-* `why`: says what happened can be:
- * `daemon restart` in case the daemon died
- * `pump start` in case the monitor start for first time
- * `pump restart` in case the monitor died and has been restarted
-* `message` in case of `pump restart` this will contain all `stderr` output since
-  the last monitor process started, so the reason is likely to be here.
+Exended the `Monitor` constructor to log events:
 
 ```JavaScript
-Monoitor.prototype.setup = function (why, message) {
-  this.output.write(why);
-  if (message) {
-    this.output.write(message);
-  }
-}
+  var log = function (type) {
+    return function (state) {
+      output.write(type + ' : ' + state);
+    };
+  };
+
+  this.on('process', log('process'));
+  this.on('monitor', log('monitor'));
+  this.on('daemon', log('daemon'));
 ```
 
 ##License
