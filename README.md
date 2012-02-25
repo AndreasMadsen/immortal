@@ -15,7 +15,7 @@
 |-------------:|:----------:|:-----------:|:-----------:|
 | **node 0.7** | confirmed  | confirmed   | unknown     |
 | **node 0.6** | confirmed  | confirmed   | unknown     |
-| **node 0.4** | unknown    | unknown     | never       |
+| **node 0.4** | confirmed  | confirmed   | never       |
 
 ## Installation
 
