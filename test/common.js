@@ -21,7 +21,7 @@
   // create temp file if missing
   var exists = fs.existsSync || path.existsSync;
   if (!exists(exports.temp)) {
-    fs.mkdirSync(exports.temp);
+    fs.mkdirSync(exports.temp, "755");
   }
 
 })();
