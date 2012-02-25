@@ -13,8 +13,8 @@
 
 |              | **Mac OS X** | **Linux** | **Windows** |
 |-------------:|:----------:|:-----------:|:-----------:|
-| **node 0.7** | confirmed  | confirmed   | unknown     |
-| **node 0.6** | confirmed  | confirmed   | unknown     |
+| **node 0.7** | confirmed  | confirmed   | confirmed   |
+| **node 0.6** | confirmed  | confirmed   | confirmed   |
 | **node 0.4** | confirmed  | confirmed   | never       |
 
 ## Installation
