@@ -1,7 +1,7 @@
 {
   "name": "immortal",
   "description": "Daemon tool made in pure javascript",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "Andreas Madsen <amwebdk@gmail.com>",
   "scripts": {
     "test": "vows test/simple/* --spec --isolate"
@@ -23,6 +23,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": "0.7.x"
+    "node": "0.4 || 0.6 || 0.7 || 0.8",
+    "npm": "1"
   }
 }
