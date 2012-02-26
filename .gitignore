@@ -1,4 +1,7 @@
 
+#ignore modules
+node_modules/
+
 #ignore log files from tests
 test/temp/
 
