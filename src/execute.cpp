@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2012 Andreas Madsen
+ * MIT License
+ */
+
 #include <stdlib.h> /* exit */
 #include <unistd.h> /* fork, setsid */
 #include <stdio.h> /* printf */
@@ -41,4 +46,3 @@ int main(int argc, char *argv[]) {
   /* there's really no way to get here, ever. */
   return 0;
 }
-
