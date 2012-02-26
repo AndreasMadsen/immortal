@@ -18,21 +18,19 @@ int main(int argc, char *argv[]) {
   int pid;
 
   signal(SIGHUP, SIG_IGN);
-
   pid = fork();
+
   if (pid < 0) {
-    /* this is an error */
+    // this is an error
     perror("fork()");
     exit(1);
-  }
-  else if (pid > 0) {
-    /* this is the parent */
+  } else if (pid > 0) {
+    // this is the parent
     printf("{\"pid\": %d}", pid);
     exit(0);
   }
 
-  /* this is the child */
-
+  // this is the child
   if (setsid() < 0) {
     perror("setsid()");
     exit(1);
@@ -43,6 +41,7 @@ int main(int argc, char *argv[]) {
     perror("execvp()");
     exit(1);
   }
-  /* there's really no way to get here, ever. */
+
+  // there's really no way to get here, ever.
   return 0;
 }
