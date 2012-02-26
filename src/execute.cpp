@@ -13,7 +13,7 @@
 #include <errno.h> /* perror */
 
 int main(int argc, char *argv[]) {
-  char *filename = argv[0];
+  char *filename = argv[1];
   char **args = &argv[1];
   int pid;
 
