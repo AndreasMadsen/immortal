@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   }
   else if (pid > 0) {
     /* this is the parent */
-    printf("{pid: %d}", pid);
+    printf("{\"pid\": %d}", pid);
     exit(0);
   }
 
