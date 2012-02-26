@@ -45,7 +45,7 @@ clean:
 link:
 # like the propper file to lib/executables
 	@printf $(reset)$(yellow)
-	ln -fs $(OUTPUT)$(FILE) $(LINK)
+	ln -fs ../../src/out/$(FILE) $(LINK)
 
 # done
 	@printf $(green)
