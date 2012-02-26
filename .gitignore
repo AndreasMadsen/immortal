@@ -1,3 +1,6 @@
 
 #ignore log files from tests
 test/temp/
+
+#ignore executeable link
+lib/executables/execute

@@ -4,7 +4,8 @@
   "version": "0.2.3",
   "author": "Andreas Madsen <amwebdk@gmail.com>",
   "scripts": {
-    "test": "vows test/simple/* --spec --isolate"
+    "test": "vows test/simple/* --spec --isolate",
+    "install": "node src/setup.js"
   },
   "main": "./lib/module.js",
   "repository" : {
