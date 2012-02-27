@@ -17,9 +17,9 @@
 | **node 0.6** | confirmed*   | confirmed*   | confirmed   |
 | **node 0.4** | confirmed*   | confirmed*   | never       |
 
-_*Okay so I will be honest in some situations a binary rebuild subroutine is used however
-this has nothing to do with node, so there shouldn't be any issues. If there are plaese
-file an issue._
+> _*Okay so I will be honest in some situations a binary rebuild subroutine is used however
+> this has nothing to do with node, so there shouldn't be any issues. If there are plaese
+> file an issue._
 
 ## Installation
 
