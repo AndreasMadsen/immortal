@@ -48,8 +48,6 @@ The function takes an optional `options` argument there can contain the followin
   simple monitor module there already exist. But it will simply log the output to a file,
   should you wish anything more you will have to create you own.
 * **options:** this are extra options parsed to the monitor object.
-* `tihs.settings` an object containg the properties `file`, `args` and `env`
-   descriping how the child process has been exeuted.
 
 Note when using the default monitor the `options` object must contain a `output` property
 there is a existing path to output file. The file is created if it don't exist but the folders
