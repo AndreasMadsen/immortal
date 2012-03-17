@@ -58,7 +58,7 @@ An very simple example using the build in monitor to start a daemon:
 ```JavaScript
 var immortal = require('immortal');
 var child = immortal.start('process.js', {
-  mode: 'daemon',
+  strategy: 'daemon',
   options: {
     output: './output.log'
   }
