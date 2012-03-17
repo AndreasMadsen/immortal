@@ -130,6 +130,7 @@ exports.Monitor = Monitor;
 ```
 
 When the `Monitor` constrcutor is called it will by default have:
+
 * `this.options` the optional `options` object set in `immortal.start`
 * `this.ready` call this function when you are ready to receive data
 * `this.stdout` a readable stream relayed from `process.stdout`
