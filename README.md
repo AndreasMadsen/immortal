@@ -221,9 +221,19 @@ The `this.pid` is an object containing information about the `pids` the OS
 has assigned to each process in the immortal group. The properties are named
 as with the monitor events:
 
-* `process`
-* `monitor`
-* `daemon`
+Extend the prevouse log function:
+
+```JavaScript
+  var log = function (type) {
+    return function (state) {
+      output.write(type + '#' + self.pid[type] + ' : ' + state);
+    };
+  };
+
+  this.on('process', log('process'));
+  this.on('monitor', log('monitor'));
+  this.on('daemon', log('daemon'));
+```
 
 Note that if no pid exist the value will be null. For instance `process` will be null
 becore it is spawned and `daemon` will be null if the daemon strategy isn't used.
