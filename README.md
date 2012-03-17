@@ -136,6 +136,7 @@ When the `Monitor` constrcutor is called it will by default have:
 * `this.stderr` a readable stream relayed from `process.stderr`
 * `this.error` in case the monitor was restarted all `stderr` output
    from prevouse `pump` process is contained in this property.
+* `this.pid` an object containing pid information about the immortal group.
 
 Note that both `.stdout` and `stderr` can't be closed because they don't origin from
 a single process.
@@ -151,7 +152,7 @@ function Monitor() {
   var output = fs.createWriteStream(this.options.output);
   output.on('open', function () {
     if (self.error) {
-      output.write("=== An error has occurred in  the monitor === ");
+      output.write("=== An error has occurred in the monitor === ");
       output.write(self.error);
       output.write("=== end error log ===");
     }
@@ -213,6 +214,19 @@ Exended the `Monitor` constructor to log events:
   this.on('monitor', log('monitor'));
   this.on('daemon', log('daemon'));
 ```
+
+### Process interaction
+
+The `this.pid` is an object containing information about the `pids` the OS
+has assigned to each process in the immortal group. The properties are named
+as with the monitor events:
+
+* `process`
+* `monitor`
+* `daemon`
+
+Note that if no pid exist the value will be null. For instance `process` will be null
+becore it is spawned and `daemon` will be null if the daemon strategy isn't used.
 
 ##License
 
