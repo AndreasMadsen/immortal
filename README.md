@@ -250,7 +250,7 @@ Immortal start the deamon and all the other nessarry in a new session. This deat
 them totally from the parent there called `immortal.start`, so when killing the immortal
 process group the parent is not affected. However the Monitor can also shutdown by
 executeing `this.shutdown()` from the Monitor. When executeing this function a `SIGTERM`
-signal is send to all every process in the group and nothing will restart.
+signal is send to every process in the group and nothing will restart.
 
 ##License
 
