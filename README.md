@@ -221,6 +221,8 @@ Exended the `Monitor` constructor to log events:
 
 ### Process interaction
 
+#### process pid
+
 The `this.pid` is an object containing information about the `pids` the OS
 has assigned to each process in the immortal group. The properties are named
 as with the monitor events:
@@ -241,6 +243,14 @@ Extend the prevouse log function:
 
 Note that if no pid exist the value will be null. For instance `process` will be null
 becore it is spawned and `daemon` will be null if the daemon strategy isn't used.
+
+#### shoutdown process group
+
+Immortal start the deamon and all the other nessarry in a new session. This deattach
+them totally from the parent there called `immortal.start`, so when killing the immortal
+process group the parent is not affected. However the Monitor can also shutdown by
+executeing `this.shutdown()` from the Monitor. When executeing this function a `SIGTERM`
+signal is send to all every process in the group and nothing will restart.
 
 ##License
 
