@@ -244,7 +244,7 @@ Extend the prevouse log function:
 Note that if no pid exist the value will be null. For instance `process` will be null
 becore it is spawned and `daemon` will be null if the daemon strategy isn't used.
 
-#### shoutdown process group
+#### shutdown process group
 
 Immortal start the deamon and all the other nessarry in a new session. This deattach
 them totally from the parent there called `immortal.start`, so when killing the immortal
