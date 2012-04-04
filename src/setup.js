@@ -46,7 +46,7 @@
 
   // get paths
   var from = path.join(helpers.root, 'src/out', 'execute-' + os);
-  var to = path.join(helpers.execute, 'execute');
+  var to = helpers.executable('execute');
   fs.symlink(from, to, 'file', function (error) {
 
     // check for errors
