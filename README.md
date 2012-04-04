@@ -46,7 +46,8 @@ The function takes an optional `options` argument there can contain the followin
 * **stategy:** this can be `development`, `unattached` or `daemon`.
 * **monitor:** path or name of module where a monitor module exist, this will default to an
   simple monitor module there already exist. But it will simply log the output to a file,
-  should you wish anything more you will have to create you own.
+  should you wish anything more you will have to create you own. You can also set it to `null`
+  then the output won't be logged.
 * **options:** this are extra options parsed to the monitor object.
 
 Note when using the default monitor the `options` object must contain a `output` property
