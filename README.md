@@ -49,6 +49,7 @@ The function takes an optional `options` argument there can contain the followin
   should you wish anything more you will have to create you own. You can also set it to `null`
   then the output won't be logged.
 * **options:** this are extra options parsed to the monitor object.
+* **auto:** when set to false the child will not auto restart when it dies.
 
 Note when using the default monitor the `options` object must contain a `output` property
 there is a existing path to output file. The file is created if it don't exist but the folders
