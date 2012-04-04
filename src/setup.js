@@ -27,9 +27,9 @@
   // platform map
   var platform = {
     linux64: 'linux',
+    linux: 'linux',
     darwin: 'darwin'
   };
-
 
   // reset colors
   process.stdout.write(reset);
