@@ -8,20 +8,25 @@
 
   var path = require('path');
   var fs = require('fs');
+  var exists = fs.existsSync || path.existsSync;
 
   // get test folders
   exports.root = path.join(path.dirname(module.filename), '../');
-  exports.test = path.join(exports.root, 'test');
-  exports.fixture = path.join(exports.test, 'fixture');
-  exports.simple = path.join(exports.test, 'simple');
-  exports.temp = path.join(exports.test, 'temp');
+  var testDir = path.join(exports.root, 'test');
 
-  exports.module = path.join(exports.root, 'lib/module.js');
+  // Filepath resolvers
+  exports.temp = function (filename) {
+    return path.join(testDir, 'temp', filename);
+  };
+  exports.fixture = function (filename) {
+    return path.join(testDir, 'fixture', filename);
+  };
+  exports.simple = function (filename) {
+    return path.join(testDir, 'simple', filename);
+  };
 
   // create temp file if missing
-  var exists = fs.existsSync || path.existsSync;
-  if (!exists(exports.temp)) {
+  if (!exists(exports.fixture())) {
     fs.mkdirSync(exports.temp, "755");
   }
-
 })();
