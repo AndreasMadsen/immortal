@@ -33,13 +33,13 @@
       },
 
       shutdown: function () {
-        var client = this;
+        self.shutdown(this.callback);
+      },
 
-        self.shutdown(function () {
-          self.requester.close();
-          client.callback();
-          self.listener.close();
-        });
+      close: function () {
+        this.callback();
+        self.requester.close();
+        self.listener.close();
       }
     });
 
@@ -52,6 +52,10 @@
           // Will be executed from testcase when it has connected to the monitor server.
           // After that everything is ready to go :D
           self.ready();
+
+          // Resume data pipes
+          self.stdout.resume();
+          self.stderr.resume();
         });
       });
     });
@@ -60,8 +64,13 @@
     this.requester.once('connect', function (remote) {
 
       // Data should not be emitted before monitor.ready is executed
-      self.stdout.on('data', remote.data.bind(remote, 'stdout'));
-      self.stderr.on('data', remote.data.bind(remote, 'stderr'));
+      self.stdout.on('data', function (chunk) {
+        remote.data('stdout', chunk.toString(), function () { });
+      });
+
+      self.stderr.on('data', function (chunk) {
+        remote.data('stderr', chunk.toString(), function () { });
+      });
     });
 
     // Relay monitor events

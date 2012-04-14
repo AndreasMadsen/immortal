@@ -104,4 +104,32 @@ vows.describe('testing monitor abstact').addBatch({
     }
   }
 
+}).addBatch({
+
+  'when stdout data is emitted': {
+    topic: function () {
+      var self = this;
+      monitor.stdout.once('data', function (chunk) {
+        self.callback(null, monitor, chunk);
+      });
+    },
+
+    'the propper chunk should be rescived': function (error, monitor, chunk) {
+      assert.equal(chunk, '.');
+    }
+  },
+
+  'when stderr data is emitted': {
+    topic: function () {
+      var self = this;
+      monitor.stderr.once('data', function (chunk) {
+        self.callback(null, monitor, chunk);
+      });
+    },
+
+    'the propper chunk should be rescived': function (error, monitor, chunk) {
+      assert.equal(chunk, '-');
+    }
+  }
+
 }).exportTo(module);

@@ -1,4 +1,5 @@
 
 setInterval(function () {
-  console.log('.');
-}, 500);
+  process.stdout.write('.');
+  process.stderr.write('-');
+}, 2000);

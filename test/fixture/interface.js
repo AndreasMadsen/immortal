@@ -83,6 +83,13 @@
     // Create relay channels
     this.shutdown = function (callback) {
       remote.shutdown(function () {
+        callback();
+      });
+    };
+
+    // Close RPC connection
+    this.close = function (callback) {
+      remote.close(function () {
         listener.close();
         requester.close();
         callback();
@@ -90,8 +97,8 @@
     };
 
     // Create relay streams
-    this.stdout = new streams.RelayStream({ paused: true });
-    this.stderr = new streams.RelayStream({ paused: true });
+    this.stdout = new streams.RelayStream({ paused: false });
+    this.stderr = new streams.RelayStream({ paused: false });
   }
   util.inherits(Interface, events.EventEmitter);
 
