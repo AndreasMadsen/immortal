@@ -5,7 +5,7 @@
 
 var common = require('../common'),
   immortal = require('immortal'),
-	vows = require('vows'),
+  vows = require('vows'),
   assert = require('assert');
 
 vows.describe('immortal input check').addBatch({
