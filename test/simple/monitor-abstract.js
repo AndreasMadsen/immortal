@@ -12,6 +12,7 @@ function startImmortal(callback) {
   prope.createInterface(common.fixture('output.js'), {
     strategy: 'development',
     args: ['value1', 'value2'],
+    relay: false,
     options: {
       foo: 'bar'
     }
