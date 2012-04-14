@@ -29,4 +29,18 @@
   if (!exists(exports.fixture())) {
     fs.mkdirSync(exports.temp, "755");
   }
+
+  // extend options
+  exports.extend = function(origin, add) {
+    // Don't do anything if add isn't an object
+    if (!add) return origin;
+
+    var keys = Object.keys(add);
+    var i = keys.length;
+    while (i--) {
+      origin[keys[i]] = add[keys[i]];
+    }
+    return origin;
+  };
+
 })();
