@@ -1,5 +1,7 @@
 
-setInterval(function () {
+setTimeout(function () {
   process.stdout.write('.');
   process.stderr.write('-');
-}, 2000);
+}, 500);
+
+setInterval(function () {}, 2000);

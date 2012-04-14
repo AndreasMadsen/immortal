@@ -115,6 +115,7 @@ vows.describe('testing monitor abstact').addBatch({
     },
 
     'the propper chunk should be rescived': function (error, monitor, chunk) {
+      assert.ifError(error);
       assert.equal(chunk, '.');
     }
   },
@@ -128,7 +129,65 @@ vows.describe('testing monitor abstact').addBatch({
     },
 
     'the propper chunk should be rescived': function (error, monitor, chunk) {
+      assert.ifError(error);
       assert.equal(chunk, '-');
+    }
+  }
+
+}).addBatch({
+
+  'when shutting down the immortal group': {
+    topic: function () {
+      var self = this;
+      monitor.shutdown(function () {
+        self.callback(null, monitor);
+      });
+    },
+
+    'process event should emit': {
+      topic: function (monitor) {
+        var self = this;
+        var processPid = monitor.pid.process;
+        monitor.once('process', function (state) {
+          self.callback(null, monitor, state, processPid);
+        });
+      },
+
+      'state should be stop': function (error, monitor, state) {
+        assert.ifError(error);
+        assert.equal(state, 'stop');
+      },
+
+      'process should not be alive': function (error, monitor, state, pid) {
+        assert.ifError(error);
+        assert.isNumber(pid);
+        assert.isFalse(common.isAlive(pid));
+      },
+
+      'pid should be null': function (error, monitor) {
+        assert.ifError(error);
+        assert.isNull(monitor.pid.process);
+      }
+    }
+  }
+
+}).addBatch({
+
+  'when closeing RPC connection': {
+    topic: function () {
+      var self = this;
+      var pid = monitor.pid.monitor;
+      monitor.close(function () {
+        setTimeout(function () {
+          self.callback(null, monitor, pid);
+        }, 500);
+      });
+    },
+
+    'the pump process should die after about 500 ms': function (error, monitor, pid) {
+      assert.ifError(error);
+      assert.isNumber(pid);
+      assert.isFalse(common.isAlive(pid));
     }
   }
 

@@ -80,7 +80,10 @@
       // write the current time and date.
       var handle = function (name) {
         return function (state) {
-          remote.emit(name, state, self.pid[name], function () {});
+          var pid = self.pid[name];
+          process.nextTick(function () {
+            remote.emit(name, state, pid, function () {});
+          });
         };
       };
 
