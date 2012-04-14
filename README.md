@@ -140,7 +140,7 @@ When the `Monitor` constrcutor is called it will by default have:
 * `this.error` in case the monitor was restarted all `stderr` output
    from prevouse `pump` process is contained in this property.
 * `this.pid` an object containing pid information about the immortal group.
-* `this.settings` an object containg the properties `file`, `args` and `env`
+* `this.settings` an object containg the properties `exec`, `file`, `args`, and `env`
    descriping how the child process has been exeuted.
 * `this.strategy` contain the strategy option.
 
