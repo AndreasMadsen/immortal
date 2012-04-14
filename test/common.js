@@ -43,4 +43,14 @@
     return origin;
   };
 
+  // check if pid process alive
+  exports.isAlive = function (pid) {
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
 })();

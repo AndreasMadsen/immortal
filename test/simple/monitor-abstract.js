@@ -47,9 +47,23 @@ vows.describe('testing monitor abstact').addBatch({
 
     'the options object should match the given options': function (error, monitor) {
       assert.ifError(error);
-      assert.deepEqual(monitor.settings, {
+      assert.deepEqual(monitor.options, {
         foo: 'bar'
       });
+    },
+
+    'pid should match alive processors': function (error, monitor) {
+      assert.ifError(error);
+
+      // since we run in development mode
+      assert.isNull(monitor.pid.daemon);
+
+      // since montor.ready hasn't been executed
+      assert.isNull(monitor.pid.process);
+
+      // the pump process should however be alive
+      assert.isNumber(monitor.pid.monitor);
+      assert.isTrue(common.isAlive(monitor.pid.monitor));
     }
   }
 
