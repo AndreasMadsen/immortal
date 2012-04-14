@@ -55,15 +55,52 @@ vows.describe('testing monitor abstact').addBatch({
     'pid should match alive processors': function (error, monitor) {
       assert.ifError(error);
 
-      // since we run in development mode
+      // Since we run in development mode
       assert.isNull(monitor.pid.daemon);
 
-      // since montor.ready hasn't been executed
+      // Since montor.ready hasn't been executed
       assert.isNull(monitor.pid.process);
 
-      // the pump process should however be alive
+      // The pump process should however be alive
       assert.isNumber(monitor.pid.monitor);
       assert.isTrue(common.isAlive(monitor.pid.monitor));
+    }
+  }
+
+}).addBatch({
+
+  'when the process is started': {
+    topic: function () {
+      monitor.ready();
+      this.callback(null, monitor);
+    },
+
+    'and process event has emitted': {
+      topic: function (monitor) {
+        var self = this;
+        monitor.once('process', function (state) {
+          self.callback(null, monitor, state);
+        });
+      },
+
+      'the pid informations should be updated': function (error, monitor) {
+        assert.ifError(error);
+
+        // since we run in development mode
+        assert.isNull(monitor.pid.daemon);
+
+        // Both process and pump process should be alive
+        assert.isNumber(monitor.pid.process);
+        assert.isTrue(common.isAlive(monitor.pid.process));
+
+        assert.isNumber(monitor.pid.monitor);
+        assert.isTrue(common.isAlive(monitor.pid.monitor));
+      },
+
+      'the state argument should be start': function (error, monitor, state) {
+        assert.ifError(error);
+        assert.equal(state, 'start');
+      }
     }
   }
 

@@ -1,4 +1,4 @@
 
-exports.foo = function (bar) {
-  console.log(bar);
-};
+setInterval(function () {
+  console.log('.');
+}, 500);
