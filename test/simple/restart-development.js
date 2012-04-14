@@ -1,0 +1,155 @@
+/**
+ * Copyright (c) 2012 Andreas Madsen
+ * MIT License
+ */
+
+var vows = require('vows'),
+    assert = require('assert'),
+    common = require('../common.js'),
+    prope = require(common.fixture('interface.js'));
+
+var preOption = {
+  strategy: 'development'
+};
+
+function startImmortal(option, callback) {
+  prope.createInterface(common.fixture('longlive.js'), common.extend(preOption, option), callback);
+}
+
+var monitor = null;
+vows.describe('testing development restart with auto:false').addBatch({
+
+  'when creating the immortal group': {
+    topic: function () {
+      var self = this;
+      startImmortal({ auto: false }, function (error, prope) {
+        monitor = prope;
+        self.callback(error, prope);
+      });
+    },
+
+    'pid should match alive processors': function (error, monitor) {
+      assert.ifError(error);
+
+      // Since we run in development mode
+      assert.isNull(monitor.pid.daemon);
+
+      // Since montor.ready hasn't been executed
+      assert.isNull(monitor.pid.process);
+
+      // The pump process should however be alive
+      assert.isNumber(monitor.pid.monitor);
+      assert.isTrue(common.isAlive(monitor.pid.monitor));
+    }
+  }
+
+}).addBatch({
+
+  'when the process is started': {
+    topic: function () {
+      monitor.ready();
+      this.callback(null, monitor);
+    },
+
+    'and process event has emitted': {
+      topic: function (monitor) {
+        var self = this;
+        monitor.once('process', function (state) {
+          self.callback(null, monitor, state);
+        });
+      },
+
+      'the pid informations should be updated': function (error, monitor) {
+        assert.ifError(error);
+
+        // since we run in development mode
+        assert.isNull(monitor.pid.daemon);
+
+        // Both process and pump process should be alive
+        assert.isNumber(monitor.pid.process);
+        assert.isTrue(common.isAlive(monitor.pid.process));
+
+        assert.isNumber(monitor.pid.monitor);
+        assert.isTrue(common.isAlive(monitor.pid.monitor));
+      },
+
+      'the state argument should be start': function (error, monitor, state) {
+        assert.ifError(error);
+        assert.equal(state, 'start');
+      }
+    }
+  }
+
+}).addBatch({
+
+  'when the process stops': {
+    topic: function () {
+      process.nextTick(function () {
+        process.kill(monitor.pid.process, 'SIGTERM');
+      });
+      this.callback(null, monitor);
+    },
+
+    'the process event should emit': {
+      topic: function (monitor) {
+        var self = this;
+        monitor.once('process', function (state) {
+          self.callback(null, monitor, state);
+        });
+      },
+
+      'the state shoud be stop': function (error, monitor, state) {
+        assert.ifError(error);
+        assert.equal(state, 'stop');
+      },
+
+      'the process pid should be null': function (error, monitor) {
+        assert.ifError(error);
+        assert.isNull(monitor.pid.process);
+      },
+
+      'and': {
+        topic: function (monitor) {
+          var self = this;
+          var listen = function (state) {
+            self.callback(null, monitor, false, state);
+          };
+          monitor.once('process', listen);
+          setTimeout(function () {
+            monitor.removeListener('process', listen);
+            self.callback(null, monitor, true, null);
+          }, 500);
+        },
+
+        'there should be no restart': function (error, monitor, fake, state) {
+          assert.ifError(error);
+          assert.isTrue(fake);
+          assert.isNull(state);
+        }
+      }
+    }
+  }
+
+}).addBatch({
+
+  'when immortal stops': {
+    topic: function () {
+      var self = this;
+      var pid = monitor.pid.monitor;
+      monitor.shutdown(function () {
+        monitor.close(function () {
+          setTimeout(function () {
+            self.callback(null, monitor, pid);
+          }, 500);
+        });
+      });
+    },
+
+    'the pump process should be dead': function (error, monitor, pid) {
+      assert.ifError(error);
+      assert.isNumber(pid);
+      assert.isFalse(common.isAlive(pid));
+    }
+  }
+
+}).exportTo(module);
