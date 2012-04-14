@@ -54,7 +54,7 @@
     // When listener is ready start immortal
     listener.once('listening', function () {
       immortal.start(filename, common.extend(preOptions, options), function (error) {
-        if (error) throw error;
+        if (error) return callback(error, null);
       });
     });
   };
@@ -72,7 +72,7 @@
       self.pid = object.pid;
 
       // Execute testcase callback
-      callback(self);
+      callback(null, self);
     });
 
     // Set ready function
