@@ -29,24 +29,26 @@
     // Create listener before starting immortal group
     var listener = thintalk({
       // connect to monitor server
-      pleaseConnect: function (errorText) {
+      pleaseConnect: function () {
         var client = this;
         requester.connect('TCP', common.temp('input'));
 
         requester.on('connect', function (remote) {
-          prope = new Interface(errorText, client.callback, listener, requester, remote, callback);
+          prope = new Interface(client.callback, listener, requester, remote, callback);
         });
       },
 
       // stderr or stdout data from channel
       data: function (channel, chunk) {
         prope[channel].write(chunk);
+        this.callback();
       },
 
       // monitor event emitted
       emit: function (name, state, pid) {
         prope.pid[name] = pid;
         prope.emit(name, state);
+        this.callback();
       }
     });
     listener.listen('TCP', common.temp('output'));
@@ -60,15 +62,15 @@
   };
 
   // Montior RPC abstract
-  function Interface(errorText, ready, listener, requester, remote, callback) {
+  function Interface(ready, listener, requester, remote, callback) {
     var self = this;
 
     // Set properties
-    this.error = errorText;
     remote.getSettings(function (object) {
       self.settings = object.settings;
       self.strategy = object.strategy;
       self.options = object.options;
+      self.error = object.error;
       self.pid = object.pid;
 
       // Execute testcase callback

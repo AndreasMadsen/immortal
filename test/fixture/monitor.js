@@ -27,6 +27,7 @@
           settings: self.settings,
           strategy: self.strategy,
           options: self.options,
+          error: self.error,
           pid: self.pid
         });
       },
@@ -70,7 +71,7 @@
       // write the current time and date.
       var handle = function (name) {
         return function (state) {
-          remote.emit(name, state, self.pid[name]);
+          remote.emit(name, state, self.pid[name], function () {});
         };
       };
 
