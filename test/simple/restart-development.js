@@ -9,11 +9,12 @@ var vows = require('vows'),
     prope = require(common.fixture('interface.js'));
 
 var preOption = {
-  strategy: 'development'
+  strategy: 'development',
+  auto: false
 };
 
-function startImmortal(option, callback) {
-  prope.createInterface(common.fixture('longlive.js'), common.extend(preOption, option), callback);
+function startImmortal(callback) {
+  prope.createInterface(common.fixture('longlive.js'), preOption, callback);
 }
 
 var monitor = null;
@@ -22,7 +23,7 @@ vows.describe('testing development restart with auto:false').addBatch({
   'when creating the immortal group': {
     topic: function () {
       var self = this;
-      startImmortal({ auto: false }, function (error, prope) {
+      startImmortal(function (error, prope) {
         monitor = prope;
         self.callback(error, prope);
       });
@@ -127,6 +128,23 @@ vows.describe('testing development restart with auto:false').addBatch({
           assert.isNull(state);
         }
       }
+    }
+  }
+
+}).addBatch({
+
+  'when the child process restarts manually': {
+    topic: function () {
+      var self = this;
+      monitor.restart(function () {
+        self.callback(null, monitor);
+      });
+    },
+
+    'the pid information should match': function (error, monitor) {
+      assert.ifError(error);
+      assert.isNumber(monitor.pid.process);
+      assert.isTrue(common.isAlive(monitor.pid.process));
     }
   }
 
