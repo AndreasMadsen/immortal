@@ -53,6 +53,34 @@ vows.describe('testing daemon restart with auto:false').addBatch({
       this.callback(null, monitor);
     },
 
+    'and daemon event has emitted': {
+      topic: function (monitor) {
+        var self = this;
+        monitor.once('daemon', function (state) {
+          self.callback(null, monitor, state);
+        });
+      },
+
+      'the state argument should be start': function (error, monitor, state) {
+        assert.ifError(error);
+        assert.equal(state, 'start');
+      }
+    },
+
+    'and monitor event has emitted': {
+      topic: function (monitor) {
+        var self = this;
+        monitor.once('monitor', function (state) {
+          self.callback(null, monitor, state);
+        });
+      },
+
+      'the state argument should be start': function (error, monitor, state) {
+        assert.ifError(error);
+        assert.equal(state, 'start');
+      }
+    },
+
     'and process event has emitted': {
       topic: function (monitor) {
         var self = this;
