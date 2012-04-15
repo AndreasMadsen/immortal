@@ -255,6 +255,12 @@ process group the parent is not affected. However the Monitor can also shutdown 
 executeing `this.shutdown()` from the Monitor. When executeing this function a `SIGTERM`
 signal is send to every process in the group and nothing will restart.
 
+#### restart child process
+
+To restart the child process manually use `this.restart()`. This can be used to take
+control of the restart strategy if it is used in combination with `auto` setting set to
+`false`.
+
 ##License
 
 **The software is license under "MIT"**
