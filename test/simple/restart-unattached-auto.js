@@ -18,7 +18,7 @@ function startImmortal(callback) {
 }
 
 var monitor = null;
-vows.describe('testing unattached restart with auto:false').addBatch({
+vows.describe('testing unattached restart with auto:true').addBatch({
 
   'when creating the immortal group': {
     topic: function () {
