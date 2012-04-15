@@ -80,9 +80,16 @@
     // Set ready function
     this.ready = ready;
 
-    // Create relay channels
+    // Shutdown immortal group
     this.shutdown = function (callback) {
       remote.shutdown(function () {
+        callback();
+      });
+    };
+
+    // Restart immortal group
+    this.restart = function (callback) {
+      remote.restart(function () {
         callback();
       });
     };

@@ -32,6 +32,10 @@
         });
       },
 
+      restart: function () {
+        self.restart(this.callback);
+      },
+
       shutdown: function () {
         self.shutdown(this.callback);
       },
