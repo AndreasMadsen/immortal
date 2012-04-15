@@ -88,10 +88,8 @@
     };
 
     // Restart immortal group
-    this.restart = function (callback) {
-      remote.restart(function () {
-        callback();
-      });
+    this.restart = function () {
+      remote.restart(function () {});
     };
 
     // Close RPC connection

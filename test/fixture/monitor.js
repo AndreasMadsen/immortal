@@ -33,17 +33,8 @@
       },
 
       restart: function () {
-        var client = this;
-        self.on('process', function event(state) {
-          if (state !== 'restart') return;
-          self.removeListener('process', event);
-
-          process.nextTick(function () {
-            client.callback();
-          });
-        });
-
         self.restart();
+        this.callback();
       },
 
       shutdown: function () {
