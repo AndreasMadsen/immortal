@@ -252,14 +252,14 @@ becore it is spawned and `daemon` will be null if the daemon strategy isn't used
 Immortal start the deamon and all the other nessarry in a new session. This deattach
 them totally from the parent there called `immortal.start`, so when killing the immortal
 process group the parent is not affected. However the Monitor can also shutdown by
-executeing `this.shutdown()` from the Monitor. When executeing this function a `SIGTERM`
-signal is send to every process in the group and nothing will restart.
+executeing `this.shutdown([callback])` from the Monitor. When executeing this function
+a `SIGTERM` signal is send to every process in the group and nothing will restart.
 
 #### restart child process
 
-To restart the child process manually use `this.restart()`. This can be used to take
-control of the restart strategy if it is used in combination with `auto` setting set to
-`false`.
+To restart the child process manually use `this.restart([callback])`. This can be used
+to take control of the restart strategy if it is used in combination with `auto`
+setting set to `false`.
 
 ##License
 
