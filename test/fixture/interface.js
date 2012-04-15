@@ -24,17 +24,24 @@
   exports.createInterface = function (filename, options, callback) {
     var prope = null;
 
-    var requester = thintalk();
-
     // Create listener before starting immortal group
     var listener = thintalk({
       // connect to monitor server
       pleaseConnect: function () {
         var client = this;
+        var requester = thintalk();
+
         requester.connect('TCP', common.temp('input'));
 
         requester.on('connect', function (remote) {
-          prope = new Interface(client.callback, listener, requester, remote, callback);
+          var reconnect = (!!prope);
+
+          if (!reconnect) prope = new Interface();
+
+          prope.setup(client.callback, listener, requester, remote, function () {
+            if (reconnect) return prope.emit('reconnect');
+            callback(null, prope);
+          });
         });
       },
 
@@ -62,49 +69,52 @@
   };
 
   // Montior RPC abstract
-  function Interface(ready, listener, requester, remote, callback) {
-    var self = this;
-
-    // Set properties
-    remote.getSettings(function (object) {
-      self.settings = object.settings;
-      self.strategy = object.strategy;
-      self.options = object.options;
-      self.error = object.error;
-      self.pid = object.pid;
-
-      // Execute testcase callback
-      callback(null, self);
-    });
-
-    // Set ready function
-    this.ready = ready;
-
-    // Shutdown immortal group
-    this.shutdown = function (callback) {
-      remote.shutdown(function () {
-        callback();
-      });
-    };
-
-    // Restart immortal group
-    this.restart = function () {
-      remote.restart(function () {});
-    };
-
-    // Close RPC connection
-    this.close = function (callback) {
-      remote.close(function () {
-        listener.close();
-        requester.close();
-        callback();
-      });
-    };
+  function Interface() {
 
     // Create relay streams
     this.stdout = new streams.RelayStream({ paused: false });
     this.stderr = new streams.RelayStream({ paused: false });
   }
   util.inherits(Interface, events.EventEmitter);
+
+  // Shutdown immortal group
+  Interface.prototype.shutdown = function (callback) {
+    this.remote.shutdown(function () {
+      callback();
+    });
+  };
+
+  // Restart immortal group
+  Interface.prototype.restart = function () {
+    this.remote.restart(function () {});
+  };
+
+  // Close RPC connection
+  Interface.prototype.close = function (callback) {
+    var self = this;
+    this.remote.close(function () {
+      self.listener.close();
+      self.requester.close();
+      callback();
+    });
+  };
+
+  // Will update static properties
+  Interface.prototype.setup = function (ready, listener, requester, remote, callback) {
+    var self = this;
+
+    this.ready = ready;
+    this.remote = remote;
+    this.listener = listener;
+    this.requester = requester;
+
+    // Set properties
+    this.remote.getSettings(function (object) {
+      common.extend(self, object);
+
+      // Execute testcase callback
+      callback();
+    });
+  };
 
 })();

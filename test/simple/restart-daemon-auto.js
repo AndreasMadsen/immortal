@@ -85,7 +85,7 @@ vows.describe('testing daemon restart with auto:true').addBatch({
 
 }).addBatch({
 
-  'when the process stops': {
+  'when the child process stops': {
     topic: function () {
       process.nextTick(function () {
         process.kill(monitor.pid.process, 'SIGTERM');
@@ -148,6 +148,176 @@ vows.describe('testing daemon restart with auto:true').addBatch({
       assert.ifError(error);
       assert.isNumber(monitor.pid.process);
       assert.isTrue(common.isAlive(monitor.pid.process));
+    }
+  }
+
+}).addBatch({
+
+  'when the pump process stops': {
+    topic: function () {
+      var self = this;
+      var pids = common.copy(monitor.pid);
+      process.nextTick(function () {
+        process.kill(monitor.pid.monitor, 'SIGTERM');
+      });
+
+      monitor.once('reconnect', function () {
+        self.callback(null, monitor, pids);
+      });
+    },
+
+    'the montor RPC sever should restart': function (error, monitor) {
+      assert.ifError(error);
+    },
+
+    'the daemon process should stil be alive': function (error, monitor, pids) {
+      assert.ifError(error);
+
+      assert.isNumber(pids.daemon);
+      assert.isTrue(common.isAlive(pids.daemon));
+    },
+
+    'the old monitor process should be dead': function (error, monitor, pids) {
+      assert.ifError(error);
+
+      assert.isNumber(pids.monitor);
+      assert.isFalse(common.isAlive(pids.monitor));
+    },
+
+    'the old child process should be dead': function (error, monitor, pids) {
+      assert.ifError(error);
+
+      assert.isNumber(pids.process);
+      assert.isFalse(common.isAlive(pids.process));
+    }
+  }
+
+}).addBatch({
+
+  'when montor.ready is executed again': {
+    topic: function () {
+      monitor.ready();
+      this.callback(null, monitor);
+    },
+
+    'the process event': {
+      topic: function (monitor) {
+        var self = this;
+        monitor.once('process', function (state) {
+          self.callback(null, monitor, state);
+        });
+      },
+
+      'should emit with a restart state': function (error, monitor, state) {
+        assert.ifError(error);
+        assert.equal(state, 'restart');
+      }
+    },
+
+    'the monitor event': {
+      topic: function (monitor) {
+        var self = this;
+        monitor.once('monitor', function (state) {
+          self.callback(null, monitor, state);
+        });
+      },
+
+      'should emit with a restart state': function (error, monitor, state) {
+        assert.ifError(error);
+        assert.equal(state, 'restart');
+      }
+    }
+  }
+
+}).addBatch({
+
+  'when the daemon process stops': {
+    topic: function () {
+      var self = this;
+      var pids = common.copy(monitor.pid);
+      process.nextTick(function () {
+        process.kill(monitor.pid.daemon, 'SIGTERM');
+      });
+
+      monitor.once('reconnect', function () {
+        self.callback(null, monitor, pids);
+      });
+    },
+
+    'the montor RPC sever should restart': function (error, monitor) {
+      assert.ifError(error);
+    },
+
+    'the old daemon process should be dead': function (error, monitor, pids) {
+      assert.ifError(error);
+
+      assert.isNumber(pids.daemon);
+      assert.isFalse(common.isAlive(pids.daemon));
+    },
+
+    'the old monitor process should be dead': function (error, monitor, pids) {
+      assert.ifError(error);
+
+      assert.isNumber(pids.monitor);
+      assert.isFalse(common.isAlive(pids.monitor));
+    },
+
+    'the old child process should be dead': function (error, monitor, pids) {
+      assert.ifError(error);
+
+      assert.isNumber(pids.process);
+      assert.isFalse(common.isAlive(pids.process));
+    }
+  }
+
+}).addBatch({
+
+  'when montor.ready is executed again': {
+    topic: function () {
+      monitor.ready();
+      this.callback(null, monitor);
+    },
+
+    'the daemon event': {
+      topic: function (monitor) {
+        var self = this;
+        monitor.once('daemon', function (state) {
+          self.callback(null, monitor, state);
+        });
+      },
+
+      'should emit with a restart state': function (error, monitor, state) {
+        assert.ifError(error);
+        assert.equal(state, 'restart');
+      }
+    },
+
+    'the process event': {
+      topic: function (monitor) {
+        var self = this;
+        monitor.once('process', function (state) {
+          self.callback(null, monitor, state);
+        });
+      },
+
+      'should emit with a restart state': function (error, monitor, state) {
+        assert.ifError(error);
+        assert.equal(state, 'restart');
+      }
+    },
+
+    'the monitor event': {
+      topic: function (monitor) {
+        var self = this;
+        monitor.once('monitor', function (state) {
+          self.callback(null, monitor, state);
+        });
+      },
+
+      'should emit with a restart state': function (error, monitor, state) {
+        assert.ifError(error);
+        assert.equal(state, 'restart');
+      }
     }
   }
 
