@@ -257,7 +257,7 @@ a `SIGTERM` signal is send to every process in the group and nothing will restar
 
 #### restart child process
 
-To restart the child process manually use `this.restart([callback])`. This can be used
+To restart the child process manually use `this.restart()`. This can be used
 to take control of the restart strategy if it is used in combination with `auto`
 setting set to `false`.
 
