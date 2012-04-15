@@ -158,20 +158,26 @@ vows.describe('testing unattached restart with auto:false').addBatch({
   'when immortal stops': {
     topic: function () {
       var self = this;
-      var pid = monitor.pid.monitor;
+      var pids = common.copy(monitor.pid);;
       monitor.shutdown(function () {
         monitor.close(function () {
           setTimeout(function () {
-            self.callback(null, monitor, pid);
+            self.callback(null, monitor, pids);
           }, 500);
         });
       });
     },
 
-    'the pump process should be dead': function (error, monitor, pid) {
+    'the immortal group should be dead': function (error, monitor, pid) {
       assert.ifError(error);
-      assert.isNumber(pid);
-      assert.isFalse(common.isAlive(pid));
+
+      assert.isNull(pid.daemon);
+
+      assert.isNumber(pid.monitor);
+      assert.isFalse(common.isAlive(pid.monitor));
+
+      assert.isNumber(pid.process);
+      assert.isFalse(common.isAlive(pid.process));
     }
   }
 

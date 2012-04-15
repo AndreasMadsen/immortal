@@ -53,4 +53,9 @@
     }
   };
 
+  // copy object
+  exports.copy = function (object) {
+    return exports.extend({}, object);
+  };
+
 })();
