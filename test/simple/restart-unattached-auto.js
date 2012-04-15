@@ -9,8 +9,7 @@ var vows = require('vows'),
     prope = require(common.fixture('interface.js'));
 
 var preOption = {
-  strategy: 'unattached',
-  auto: false
+  strategy: 'unattached'
 };
 
 function startImmortal(callback) {
@@ -32,7 +31,7 @@ vows.describe('testing unattached restart with auto:true').addBatch({
     'pid should match alive processors': function (error, monitor) {
       assert.ifError(error);
 
-      // Since we run in unatteched mode
+      // Since we run in unattached mode
       assert.isNull(monitor.pid.daemon);
 
       // Since montor.ready hasn't been executed
@@ -91,42 +90,38 @@ vows.describe('testing unattached restart with auto:true').addBatch({
       this.callback(null, monitor);
     },
 
-    'the process event should emit': {
+    'the process event should emit stop': {
       topic: function (monitor) {
         var self = this;
-        monitor.once('process', function (state) {
+        monitor.on('process', function event(state) {
+          if (state !== 'stop') return;
+          monitor.removeListener('process', event);
+
           self.callback(null, monitor, state);
         });
-      },
-
-      'the state shoud be stop': function (error, monitor, state) {
-        assert.ifError(error);
-        assert.equal(state, 'stop');
       },
 
       'the process pid should be null': function (error, monitor) {
         assert.ifError(error);
         assert.isNull(monitor.pid.process);
+      }
+    },
+
+    'the process event should emit restart': {
+      topic: function (monitor) {
+        var self = this;
+        monitor.on('process', function event(state) {
+          if (state !== 'restart') return;
+          monitor.removeListener('process', event);
+
+          self.callback(null, monitor, state);
+        });
       },
 
-      'and': {
-        topic: function (monitor) {
-          var self = this;
-          var listen = function (state) {
-            self.callback(null, monitor, false, state);
-          };
-          monitor.once('process', listen);
-          setTimeout(function () {
-            monitor.removeListener('process', listen);
-            self.callback(null, monitor, true, null);
-          }, 500);
-        },
-
-        'there should be no restart': function (error, monitor, fake, state) {
-          assert.ifError(error);
-          assert.isTrue(fake);
-          assert.isNull(state);
-        }
+      'the process pid should match': function (error, monitor) {
+        assert.ifError(error);
+        assert.isNumber(monitor.pid.process);
+        assert.isTrue(common.isAlive(monitor.pid.process));
       }
     }
   }
