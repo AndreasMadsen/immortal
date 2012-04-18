@@ -38,6 +38,8 @@
       },
 
       shutdown: function () {
+        stopErrorLoop = true;
+        clearTimeout(simultaneousError);
         self.shutdown(this.callback);
       },
 
@@ -48,6 +50,31 @@
       }
     });
 
+    // Regression: Will output stderr until something happens
+    var stopErrorLoop = false;
+    function setOutputErrors() {
+      var KB = (new Array(1025)).join('e');
+
+      process.nextTick(function loop() {
+        if (stopErrorLoop) return;
+
+        process.stderr.write(KB);
+        process.nextTick(loop);
+      });
+    }
+
+    // Regression: Will output stderr until something happens
+    var simultaneousError;
+    function setSimultaneousError() {
+      simultaneousError = setTimeout(function () {
+
+        process.kill(self.pid.daemon);
+        setTimeout(function () {
+          throw new Error('lucky number error');
+        }, 6); // <- this is my lucky number (or so I hope)
+      }, 100);
+    }
+
     // Start monitor server once connection is made
     this.requester.once('connect', function (remote) {
       self.listener.listen('TCP', common.temp('input'));
@@ -57,6 +84,12 @@
           // Will be executed from testcase when it has connected to the monitor server.
           // After that everything is ready to go :D
           self.ready();
+
+          if (self.options.errorLoop) {
+            setOutputErrors();
+          } else if (self.options.simultaneousError) {
+            setSimultaneousError();
+          }
 
           // Resume data pipes
           self.stdout.resume();
