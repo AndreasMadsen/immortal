@@ -51,6 +51,7 @@ The function takes an optional `options` argument there can contain the followin
 * **options:** this are extra options parsed to the monitor object.
 * **auto:** when set to false the child will not auto restart when it dies.
 * **relay:** if false output from process will not be replyed to parent, `development` strategy only.
+* **bufferLength:** the maximal size of the error buffer in the daemon process, default is 1048576 (1MB).
 
 Note when using the default monitor the `options` object must contain a `output` property
 there is a existing path to output file. The file is created if it don't exist but the folders
