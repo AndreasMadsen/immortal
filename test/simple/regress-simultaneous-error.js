@@ -65,8 +65,8 @@ function addTestSeries() {
         'the old immortal group should be dead': function (error, monitor, pids) {
           assert.ifError(error);
 
-          assert.isNumber(pids.monitor);
-          assert.isFalse(common.isAlive(pids.monitor));
+          assert.isNumber(pids.daemon);
+          assert.isFalse(common.isAlive(pids.daemon));
 
           assert.isNumber(pids.monitor);
           assert.isFalse(common.isAlive(pids.monitor));
