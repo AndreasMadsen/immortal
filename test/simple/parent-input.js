@@ -121,7 +121,7 @@ vows.describe('immortal input check').addBatch({
       },
       'it will fail': function (respons, err) {
         assert.ifError(err);
-        assert.equal(respons.message, 'options.monitor must be a string or null');
+        assert.equal(respons.message, 'options.monitor must be a string');
       }
     }
 
