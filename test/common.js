@@ -8,7 +8,10 @@
 
   var path = require('path');
   var fs = require('fs');
-  var exists = fs.existsSync || path.existsSync;
+
+  // fs exists
+  exports.existsSync = fs.existsSync || path.existsSync;
+  exports.exists = fs.exists || path.exists;
 
   // get test folders
   exports.root = path.join(path.dirname(module.filename), '../');
@@ -26,7 +29,7 @@
   };
 
   // create temp file if missing
-  if (!exists(exports.fixture())) {
+  if (!exports.existsSync(exports.fixture())) {
     fs.mkdirSync(exports.temp, "755");
   }
 
