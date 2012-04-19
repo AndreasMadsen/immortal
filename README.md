@@ -40,18 +40,17 @@ when the process is executed and property deattached from its parent if necessar
 
 The function takes an optional `options` argument there can contain the following properties:
 
-* **args:** the arguments the new process will be executed with.
-* **exec:** the file there will be executed - it will default to process.execPath.
-* **env:** the envorment the new process will run in.
-* **stategy:** this can be `development`, `unattached` or `daemon`.
-* **monitor:** path or name of module where a monitor module exist, this will default to an
-  simple monitor module there already exist. But it will simply log the output to a file,
-  should you wish anything more you will have to create you own. You can also set it to `null`
-  then the output won't be logged.
-* **options:** this are extra options parsed to the monitor object.
-* **auto:** when set to false the child will not auto restart when it dies.
-* **relay:** if false output from process will not be replyed to parent, `development` strategy only.
-* **bufferLength:** the maximal size of the error buffer in the daemon process, default is 1048576 (1MB).
+|                  | **type** | **description**                                                                    | **default**              |
+|-----------------:|:---------|:-----------------------------------------------------------------------------------|:-------------------------|
+| **args**         | Array    | the arguments the new process will be executed with.                               | `[]`                     |
+| **exec**         | Filepath | the file there will be executed                                                    | `process.execPath`       |
+| **env**          | Object   | the envorment the new process will run in.                                         | `process.env`            |
+| **stategy**      | String   | this can be `development`, `unattached` or `daemon`.                               | `unattached`             |
+| **monitor**      | Filepath | filepath to monitor module.                                                        | very simple monitor file |
+| **options**      | Object   | extra options parsed to the monitor object.                                        | `{}`                     |
+| **auto**         | Boolean  | when `true` the child will auto restart when it dies.                              | `true`                   |
+| **relay**        | Boolean  | when `true` output from process writen to the parent, `development` strategy only. | `true`                   |
+| **bufferLength** | Number   |the maximal size of the error buffer in the daemon process                          | `1048576` Byte or `1 MB` |
 
 Note when using the default monitor the `options` object must contain a `output` property
 there is a existing path to output file. The file is created if it don't exist but the folders
