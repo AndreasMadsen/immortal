@@ -8,13 +8,13 @@ var fs = require('fs'),
     assert = require('assert'),
     immortal = require('immortal'),
 
-    common = require('../common.js');
+    common = require('../common.js'),
+    propes = require(common.watcher('filewatch.js'));
 
 var outputFile = common.temp('output.txt');
 var pidFile = common.temp('daemon.pid');
 
 // Cleanup old files
-if (common.existsSync(outputFile)) fs.unlinkSync(outputFile);
 if (common.existsSync(pidFile)) fs.unlinkSync(pidFile);
 
 // null pid object
@@ -24,22 +24,25 @@ var pidInfo = {
   process: null
 };
 
+var outputWatch;
 vows.describe('testing default monitor').addBatch({
 
   'when starting immortal': {
     topic: function () {
       var self = this;
 
-      immortal.start(common.fixture('output.js'), {
-        strategy: 'daemon',
-        options: {
-          output: outputFile,
-          pidFile: pidFile
-        }
-      }, function (error) {
-        setTimeout(function () {
-          self.callback(error, null);
-        }, 500);
+      outputWatch = new propes.FileWatcher(outputFile, function () {
+        immortal.start(common.fixture('pingping.js'), {
+          strategy: 'daemon',
+          options: {
+            output: outputFile,
+            pidFile: pidFile
+          }
+        }, function (error) {
+          setTimeout(function () {
+            self.callback(error, null);
+          }, 500);
+        });
       });
     },
 
@@ -101,25 +104,68 @@ vows.describe('testing default monitor').addBatch({
 
 }).addBatch({
 
+  'the content of the output file': {
+    topic: function () {
+      var self = this;
+      var lines = [], i = 0;
+
+      // grap the first 6 lines
+      outputWatch.on('line', function removeMe(line) {
+        i += 1;
+
+        // store line
+        lines.push(line);
+
+        // stop line reading
+        if (i === 6) {
+          outputWatch.pause();
+          outputWatch.removeListener('line', removeMe);
+          self.callback(null, lines);
+        }
+      });
+      outputWatch.resume();
+    },
+
+    'should contain time info': function (error, lines) {
+      assert.ifError(error);
+
+      // a lazy check
+      assert.ok(lines[1].indexOf('=== Time: ') === 0);
+      assert.ok(lines[3].indexOf('=== Time: ') === 0);
+      assert.ok(lines[5].indexOf('=== Time: ') === 0);
+    },
+
+    'should contain pid info': function (error, lines) {
+      assert.ifError(error);
+
+      // a lazy check
+      assert.ok(lines[0].indexOf('=== monitor#' + pidInfo.monitor) === 0);
+      assert.ok(lines[2].indexOf('=== daemon#' + pidInfo.daemon) === 0);
+      assert.ok(lines[4].indexOf('=== process#' + pidInfo.process) === 0);
+    }
+  }
+
+}).addBatch({
+
   'cleanup: when trying to kill all pids': {
     topic: function () {
       var self = this;
 
-      // Seriouse attempt to kill the immortal group
-      // Should you really want that in production, please do it by
-      // the session id (posix), the process tree (windows) or use monitor.shoutdown()
-      var pidCache = pidInfo;
-      var i = 3;
-      while(i--) {
-        try { process.kill(pidCache.daemon); } catch (e) {}
-        try { process.kill(pidCache.monitor); } catch (e) {}
-        try { process.kill(pidCache.process); } catch (e) {}
-      }
+        // Seriouse attempt to kill the immortal group
+        // Should you really want that in production, please do it by
+        // the session id (posix), the process tree (windows) or use monitor.shoutdown()
+        var pidCache = pidInfo;
+        var i = 3;
+        while(i--) {
+          try { process.kill(pidCache.daemon); } catch (e) {}
+          try { process.kill(pidCache.monitor); } catch (e) {}
+          try { process.kill(pidCache.process); } catch (e) {}
+        }
 
-      // Assume that every thing is killed after 500 ms
-      setTimeout(function () {
-        self.callback(null, pidCache);
-      }, 500);
+        // Assume that every thing is killed after 500 ms
+        setTimeout(function () {
+          self.callback(null, pidCache);
+        }, 500);
     },
 
     'all processors should be dead': function (error, pidCache) {
@@ -133,6 +179,10 @@ vows.describe('testing default monitor').addBatch({
 
       assert.isNumber(pidCache.process);
       assert.isFalse(common.isAlive(pidCache.process));
+    },
+
+    teardown : function () {
+      outputWatch.close();
     }
   }
 
