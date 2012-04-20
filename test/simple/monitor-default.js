@@ -7,6 +7,7 @@ var fs = require('fs'),
     vows = require('vows'),
     assert = require('assert'),
     immortal = require('immortal'),
+
     common = require('../common.js');
 
 var outputFile = common.temp('output.txt');
@@ -127,8 +128,8 @@ vows.describe('testing default monitor').addBatch({
       assert.isNumber(pidCache.daemon);
       assert.isFalse(common.isAlive(pidCache.daemon));
 
-      assert.isNumber(pidCache.process);
-      assert.isFalse(common.isAlive(pidCache.process));
+      assert.isNumber(pidCache.monitor);
+      assert.isFalse(common.isAlive(pidCache.monitor));
 
       assert.isNumber(pidCache.process);
       assert.isFalse(common.isAlive(pidCache.process));
