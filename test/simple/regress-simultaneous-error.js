@@ -6,7 +6,7 @@
 var vows = require('vows'),
     assert = require('assert'),
     common = require('../common.js'),
-    prope = require(common.fixture('interface.js'));
+    prope = require(common.watcher('interface.js'));
 
 function startImmortal(callback) {
   prope.createInterface(common.fixture('longlive.js'), {

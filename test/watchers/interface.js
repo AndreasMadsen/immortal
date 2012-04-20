@@ -18,7 +18,7 @@
 
   // Pre options set a RPC monitor propert
   var preOptions = {
-    'monitor': common.fixture('monitor.js')
+    'monitor': common.watcher('monitor.js')
   };
 
   exports.createInterface = function (filename, options, callback) {

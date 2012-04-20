@@ -27,6 +27,9 @@
   exports.simple = function (filename) {
     return path.join(testDir, 'simple', filename);
   };
+  exports.watcher = function (filename) {
+    return path.join(testDir, 'watchers', filename);
+  };
 
   // create temp file if missing
   if (!exports.existsSync(exports.fixture())) {
