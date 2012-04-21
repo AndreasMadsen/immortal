@@ -12,6 +12,9 @@
 
   var common = require('../common.js');
 
+  /**
+   * FileWatcher abstract used by LineWatcher and JsonWatcher
+   */
   function FileWatcher(filepath) {
     var self = this;
 
@@ -20,11 +23,11 @@
     this.fd = null;
 
     // query keeper
-    this.internal = {
-      reading: false,
-      stoped: false,
-      query: 0
-    };
+    this.reading = false;
+    this.stoped = false;
+    this.paused = true;
+    this.query = 0;
+    this.cache = [];
 
     // new and old file stat
     this.stat = null;
@@ -51,10 +54,12 @@
     var self = this;
 
     common.exists(this.filepath, function (exists) {
-      if (self.internal.stoped) return;
+      if (self.stoped) return;
 
       if (exists === false) {
-        setTimeout(self.beginWatcher.bind(self), 50);
+        setTimeout(function () {
+          self.beginWatcher();
+        }, 50);
         return;
       }
 
@@ -67,7 +72,7 @@
         self.fd = fd;
 
         // get the first reading
-        self.internal.query += 1;
+        self.query += 1;
         self.updateStat(function () {
 
           // Start file a watcher
@@ -75,10 +80,10 @@
             if (event === 'change') {
 
               // push to query
-              self.internal.query += 1;
+              self.query += 1;
 
               // update stat
-              if (self.internal.reading === false) {
+              if (self.reading === false) {
                 self.updateStat();
               }
             }
@@ -91,24 +96,35 @@
   FileWatcher.prototype.updateStat = function (callback) {
     var self = this;
 
-    this.internal.reading = true;
+    this.reading = true;
 
-    function next(emit) {
-      // one more done
-      self.internal.query -= 1;
+    function next() {
+      if (callback) callback();
 
-      // execute callbacks
-      if (emit) {
-        if (callback) callback();
-        self.emit('modified');
-      }
-
-      // handle next query
-      if (self.internal.query === 0) {
-        self.internal.reading = false;
+      if (self.query === 0) {
+        self.reading = false;
       } else {
         self.updateStat();
       }
+    }
+
+    function handle(emit) {
+      // one more done
+      self.query -= 1;
+
+      // handle next query
+      if (emit === false) {
+        return next();
+      }
+
+      // execute callbacks
+      self.emit('modified', next, function (respons) {
+        if (self.paused) {
+          self.cache.push(respons);
+        } else {
+          respons();
+        }
+      });
     }
 
     // get new stats
@@ -120,17 +136,33 @@
 
       // save as old and new if this is the first read
       if (current === null) {
-        return next(true);
+        return handle(true);
       }
 
       // if the file has been modified update stats and execute callback
-      return next( stat.mtime.getTime() > current.mtime.getTime() );
+      return handle( stat.mtime.getTime() > current.mtime.getTime() );
     });
   };
 
+  // store lines in cache
+  FileWatcher.prototype.pause = function () {
+    this.paused = true;
+  };
+
+  // drain cache and discontinue line storeing
+  FileWatcher.prototype.resume = function () {
+    this.paused = false;
+    while (this.cache.length !== 0 && this.paused === false) {
+      this.cache.splice(0, 1)[0]();
+    }
+  };
+
   // Stop file watcher
-  FileWatcher.prototype.stopWatcher = function () {
-    this.internal.stoped = true;
+  FileWatcher.prototype.close = function () {
+    this.pause();
+    this.query = 0;
+
+    this.stoped = true;
     if (this.stream) {
       this.stream.close();
       this.stream = null;
@@ -141,48 +173,24 @@
     }
   };
 
-
+  /**
+   * LineWatcher will emit line event when new lines are added
+   */
   function LineWatcher(filepath, callback) {
-    var self = this;
     FileWatcher.call(this, filepath);
     this.once('ready', callback);
 
-    this.reading = false;
-    this.query = 0;
-
-    this.paused = true;
     this.position = 0;
-    this.cache = [];
     this.buffer = '';
 
-    this.on('modified', function () {
-      self.query += 1;
-      if (self.reading === false) {
-        self.readFileUpdate();
-      }
-    });
+    this.on('modified', this.updateFile.bind(this));
   }
   util.inherits(LineWatcher, FileWatcher);
   exports.LineWatcher = LineWatcher;
 
   // read file changes
-  LineWatcher.prototype.readFileUpdate = function () {
+  LineWatcher.prototype.updateFile = function (done, callback) {
     var self = this;
-
-    // Read file content
-    this.reading = true;
-
-    function next() {
-      // one more done
-      self.query -= 1;
-
-      // next in query
-      if (self.query === 0) {
-        self.reading = false;
-      } else {
-        self.readFileUpdate();
-      }
-    }
 
     // Update and set position
     var position = this.position;
@@ -191,13 +199,13 @@
 
     // Skip reading if there where no changes
     if (bufferSize === 0) {
-      return next();
+      return done();
     }
 
     // Read filechanges
     var buffer = new Buffer(bufferSize);
-    fs.read(self.fd, buffer, 0, bufferSize, position, function (error) {
-      if (error) throw error;
+    fs.read(this.fd, buffer, 0, bufferSize, position, function (error) {
+      if (error) return self.emit('error', error);
 
       // add buffer content
       var i, start = 0;
@@ -208,39 +216,64 @@
         var line = self.buffer.slice(start, i);
 
         // emit line event or add to cache
-        if (self.paused) {
-          self.cache.push(line);
-        } else {
-          self.emit('line', line);
-        }
+        callback(self.emit.bind(self, 'line', line));
 
         start = i + 1;
       }
       self.buffer = self.buffer.slice(start);
 
       // read again if there is a query
-      return next();
+      return done();
     });
   };
 
-  // store lines in cache
-  LineWatcher.prototype.pause = function () {
-    this.paused = true;
-  };
+  /**
+   * JsonWatcher will emit when a json file is updated
+   */
+  function JsonWatcher(filepath, callback) {
+    FileWatcher.call(this, filepath);
+    this.once('ready', callback);
 
-  // drain cache and discontinue line storeing
-  LineWatcher.prototype.resume = function () {
-    this.paused = false;
-    while (this.cache.length !== 0 && this.paused === false) {
-      this.emit('line', this.cache.splice(0, 1)[0]);
+    this.buffer = '';
+    this.on('modified', this.updateFile.bind(this));
+  }
+  util.inherits(JsonWatcher, FileWatcher);
+  exports.JsonWatcher = JsonWatcher;
+
+  // read file changes
+  JsonWatcher.prototype.updateFile = function (done, callback) {
+    var self = this;
+
+    // Update and set position
+    var bufferSize = this.stat.size;
+
+    // Skip reading if there where no changes
+    if (bufferSize === 0) {
+      return done();
     }
-  };
 
-  // Stop reading
-  LineWatcher.prototype.close = function () {
-    this.pause();
-    this.query = 0;
-    this.stopWatcher();
+    // Read filechanges
+    var buffer = new Buffer(bufferSize);
+    fs.read(this.fd, buffer, 0, bufferSize, 0, function (error) {
+      if (error) return self.emit('error', error);
+
+      var content = buffer.toString();
+
+      // if the content hasn't changed
+      if (self.buffer === content) {
+        return done();
+      }
+
+      // add buffer content
+      try {
+        callback(self.emit.bind(self, 'update', JSON.parse(content)));
+      } catch (e) {
+        callback(self.emit.bind(self, 'error', e));
+      }
+
+      // read again if there is a query
+      return done();
+    });
   };
 
 })();
