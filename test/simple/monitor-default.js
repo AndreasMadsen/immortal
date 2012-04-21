@@ -31,7 +31,7 @@ vows.describe('testing default monitor').addBatch({
     topic: function () {
       var self = this;
 
-      outputWatch = new propes.FileWatcher(outputFile, function () {
+      outputWatch = new propes.LineWatcher(outputFile, function () {
         immortal.start(common.fixture('pingping.js'), {
           strategy: 'daemon',
           options: {
