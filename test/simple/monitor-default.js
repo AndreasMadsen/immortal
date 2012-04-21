@@ -14,9 +14,6 @@ var fs = require('fs'),
 var outputFile = common.temp('output.txt');
 var pidFile = common.temp('daemon.pid');
 
-// Cleanup old files
-if (common.existsSync(pidFile)) fs.unlinkSync(pidFile);
-
 // null pid object
 var pidInfo = {
   daemon: null,
@@ -24,24 +21,29 @@ var pidInfo = {
   process: null
 };
 
-var outputWatch;
+var outputWatch, pidWatch;
 vows.describe('testing default monitor').addBatch({
 
   'when starting immortal': {
     topic: function () {
       var self = this;
 
+      // open file watchers
       outputWatch = new propes.LineWatcher(outputFile, function () {
-        immortal.start(common.fixture('pingping.js'), {
-          strategy: 'daemon',
-          options: {
-            output: outputFile,
-            pidFile: pidFile
-          }
-        }, function (error) {
-          setTimeout(function () {
-            self.callback(error, null);
-          }, 500);
+        pidWatch = new propes.JsonWatcher(pidFile, function () {
+
+          immortal.start(common.fixture('pingping.js'), {
+            strategy: 'daemon',
+            options: {
+              output: outputFile,
+              pidFile: pidFile
+            }
+          }, function (error) {
+            setTimeout(function () {
+              self.callback(error, null);
+            }, 500);
+          });
+
         });
       });
     },
@@ -65,37 +67,34 @@ vows.describe('testing default monitor').addBatch({
   'the content of the pid file': {
     topic: function () {
       var self = this;
-      fs.readFile(pidFile, 'utf8', function (error, content) {
-        if (error) return self.callback(error, null, null);
 
-        try {
-          pidInfo = JSON.parse(content);
-          self.callback(null, content, pidInfo);
-        } catch (e) {
-          self.callback(e, null, null);
-        }
+      pidWatch.once('update', function (object) {
+        pidWatch.pause();
+
+        pidInfo = object;
+        self.callback(null, object);
       });
+      pidWatch.resume();
     },
 
-    'should be a JSON object': function (error, content, pidInfo) {
+    'should be a JSON object': function (error, pidInfo) {
       assert.ifError(error);
-      assert.notEqual(content, '');
       assert.deepEqual(Object.keys(pidInfo), ['process', 'monitor', 'daemon']);
     },
 
-    'the daemon property should match an alive process': function (error, content, pidInfo) {
+    'the daemon property should match an alive process': function (error, pidInfo) {
       assert.ifError(error);
       assert.isNumber(pidInfo.daemon);
       assert.isTrue(common.isAlive(pidInfo.daemon));
     },
 
-    'the monitor property should match an alive process': function (error, content, pidInfo) {
+    'the monitor property should match an alive process': function (error, pidInfo) {
       assert.ifError(error);
       assert.isNumber(pidInfo.process);
       assert.isTrue(common.isAlive(pidInfo.process));
     },
 
-    'the process property should match an alive process': function (error, content, pidInfo) {
+    'the process property should match an alive process': function (error, pidInfo) {
       assert.ifError(error);
       assert.isNumber(pidInfo.process);
       assert.isTrue(common.isAlive(pidInfo.process));
@@ -183,6 +182,7 @@ vows.describe('testing default monitor').addBatch({
 
     teardown : function () {
       outputWatch.close();
+      pidWatch.close();
     }
   }
 
