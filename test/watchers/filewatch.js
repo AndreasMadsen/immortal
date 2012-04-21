@@ -112,11 +112,6 @@
       // one more done
       self.query -= 1;
 
-      // handle next query
-      if (emit === false) {
-        return next();
-      }
-
       // execute callbacks
       self.emit('modified', next, function (respons) {
         if (self.paused) {
@@ -136,11 +131,11 @@
 
       // save as old and new if this is the first read
       if (current === null) {
-        return handle(true);
+        return handle();
       }
 
       // if the file has been modified update stats and execute callback
-      return handle( stat.mtime.getTime() > current.mtime.getTime() );
+      return handle();
     });
   };
 
@@ -263,6 +258,9 @@
       if (self.buffer === content) {
         return done();
       }
+
+      // store current
+      self.buffer = content;
 
       // add buffer content
       try {
