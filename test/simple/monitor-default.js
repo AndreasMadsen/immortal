@@ -308,6 +308,88 @@ vows.describe('testing default monitor').addBatch({
 
 }).addBatch({
 
+  'when the daemon process restarts': {
+    topic: function () {
+      process.kill(pidInfo.daemon);
+
+      var self = this;
+      var pidCache = pidInfo;
+      pidWatch.on('update', function removeMe(object) {
+        if (object.process === null) return;
+
+        // pause pidWatch when the process property is set
+        pidWatch.pause();
+        pidWatch.removeListener('update', removeMe);
+
+        // save pid info
+        pidInfo = object;
+        self.callback(null, pidCache, object);
+      });
+      pidWatch.resume();
+    },
+
+    'the pid file should contain new pid info': function (error, pidCache, pidInfo) {
+      assert.ifError(error);
+
+      assert.notEqual(pidInfo.process, pidCache.process);
+      assert.notEqual(pidInfo.monitor, pidCache.monitor);
+      assert.notEqual(pidInfo.daemon, pidCache.daemon);
+
+      assert.isNumber(pidInfo.daemon);
+      assert.isTrue(common.isAlive(pidInfo.daemon));
+
+      assert.isNumber(pidInfo.monitor);
+      assert.isTrue(common.isAlive(pidInfo.monitor));
+
+      assert.isNumber(pidInfo.process);
+      assert.isTrue(common.isAlive(pidInfo.process));
+    },
+
+    'the output file': {
+      topic: function () {
+        var self = this;
+        var lines = [], i = 0;
+
+        // grap the first 6 lines
+        outputWatch.on('line', function removeMe(line) {
+          // skip the stdeout lines
+          if (i === 0 && line === '.') return;
+
+          i += 1;
+
+          // store line
+          lines.push(line);
+
+          // stop line reading
+          if (i === 7) {
+            outputWatch.pause();
+            outputWatch.removeListener('line', removeMe);
+            self.callback(null, lines);
+          }
+        });
+        outputWatch.resume();
+      },
+
+      'should contain pid and time info': function (error, lines) {
+        assert.ifError(error);
+
+        assert.equal(lines[0], pidLog(true, 'monitor', pidInfo, 'restarted'));
+        assert.ok(lines[1].indexOf('=== Time: ') === 0);
+        assert.equal(lines[2], pidLog(true, 'daemon', pidInfo, 'restarted'));
+        assert.ok(lines[3].indexOf('=== Time: ') === 0);
+        assert.equal(lines[4], pidLog(true, 'process', pidInfo, 'restarted'));
+        assert.ok(lines[5].indexOf('=== Time: ') === 0);
+      },
+
+      'should contain output text': function (error, lines) {
+        assert.ifError(error);
+        assert.equal(lines[6], '.');
+      }
+    }
+  }
+
+}).addBatch({
+
   'cleanup: when trying to kill all pids': {
     topic: function () {
       var self = this;
