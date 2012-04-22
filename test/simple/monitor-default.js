@@ -21,6 +21,12 @@ var pidInfo = {
   process: null
 };
 
+function pidLog(eq, type, pidList, did) {
+  var pre = (eq ? ' ! ' : ' ');
+
+  return ('===' + pre + type + '#' + pidList[type] + ' ' + did + pre + '===');
+}
+
 var outputWatch, pidWatch;
 vows.describe('testing default monitor').addBatch({
 
@@ -138,9 +144,9 @@ vows.describe('testing default monitor').addBatch({
       assert.ifError(error);
 
       // a lazy check
-      assert.ok(lines[0].indexOf('=== monitor#' + pidInfo.monitor) === 0);
-      assert.ok(lines[2].indexOf('=== daemon#' + pidInfo.daemon) === 0);
-      assert.ok(lines[4].indexOf('=== process#' + pidInfo.process) === 0);
+      assert.equal(lines[0], pidLog(false, 'monitor', pidInfo, 'started for first time'));
+      assert.equal(lines[2], pidLog(false, 'daemon', pidInfo, 'started for first time'));
+      assert.equal(lines[4], pidLog(false, 'process', pidInfo, 'started for first time'));
     },
 
     'should contain output text': function (error, lines) {
@@ -157,9 +163,14 @@ vows.describe('testing default monitor').addBatch({
 
       var self = this;
       var pidCache = pidInfo;
-      pidWatch.once('update', function (object) {
-        pidWatch.pause();
+      pidWatch.on('update', function removeMe(object) {
+        if (object.process === null) return;
 
+        // pause pidWatch when the process property is set
+        pidWatch.pause();
+        pidWatch.removeListener('update', removeMe);
+
+        // save pid info
         pidInfo = object;
         self.callback(null, pidCache, object);
       });
@@ -193,7 +204,7 @@ vows.describe('testing default monitor').addBatch({
           lines.push(line);
 
           // stop line reading
-          if (i === 4) {
+          if (i === 5) {
             outputWatch.pause();
             outputWatch.removeListener('line', removeMe);
             self.callback(null, lines);
@@ -207,8 +218,90 @@ vows.describe('testing default monitor').addBatch({
 
         assert.equal(lines[0], '=== ! process terminated ! ===');
         assert.ok(lines[1].indexOf('=== Time: ') === 0);
-        assert.ok(lines[2].indexOf('=== ! process#' + pidInfo.process) === 0);
+        assert.equal(lines[2], pidLog(true, 'process', pidInfo, 'restarted'));
         assert.ok(lines[3].indexOf('=== Time: ') === 0);
+      },
+
+      'should contain output text': function (error, lines) {
+        assert.ifError(error);
+        assert.equal(lines[4], '.');
+      }
+    }
+  }
+
+}).addBatch({
+
+  'when the monitor process restarts': {
+    topic: function () {
+      process.kill(pidInfo.monitor);
+
+      var self = this;
+      var pidCache = pidInfo;
+      pidWatch.on('update', function removeMe(object) {
+        if (object.process === null) return;
+
+        // pause pidWatch when the process property is set
+        pidWatch.pause();
+        pidWatch.removeListener('update', removeMe);
+
+        // save pid info
+        pidInfo = object;
+        self.callback(null, pidCache, object);
+      });
+      pidWatch.resume();
+    },
+
+    'the pid file should contain new pid info': function (error, pidCache, pidInfo) {
+      assert.ifError(error);
+
+      assert.notEqual(pidInfo.process, pidCache.process);
+      assert.notEqual(pidInfo.monitor, pidCache.monitor);
+      assert.equal(pidInfo.daemon, pidCache.daemon);
+
+      assert.isNumber(pidInfo.monitor);
+      assert.isTrue(common.isAlive(pidInfo.monitor));
+
+      assert.isNumber(pidInfo.process);
+      assert.isTrue(common.isAlive(pidInfo.process));
+    },
+
+    'the output file': {
+      topic: function () {
+        var self = this;
+        var lines = [], i = 0;
+
+        // grap the first 6 lines
+        outputWatch.on('line', function removeMe(line) {
+          // skip the stdeout lines
+          if (i === 0 && line === '.') return;
+
+          i += 1;
+
+          // store line
+          lines.push(line);
+
+          // stop line reading
+          if (i === 5) {
+            outputWatch.pause();
+            outputWatch.removeListener('line', removeMe);
+            self.callback(null, lines);
+          }
+        });
+        outputWatch.resume();
+      },
+
+      'should contain pid and time info': function (error, lines) {
+        assert.ifError(error);
+
+        assert.equal(lines[0], pidLog(true, 'monitor', pidInfo, 'restarted'));
+        assert.ok(lines[1].indexOf('=== Time: ') === 0);
+        assert.equal(lines[2], pidLog(true, 'process', pidInfo, 'restarted'));
+        assert.ok(lines[3].indexOf('=== Time: ') === 0);
+      },
+
+      'should contain output text': function (error, lines) {
+        assert.ifError(error);
+        assert.equal(lines[4], '.');
       }
     }
   }
