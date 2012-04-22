@@ -236,8 +236,11 @@
   exports.JsonWatcher = JsonWatcher;
 
   // read file changes
-  JsonWatcher.prototype.updateFile = function (done, callback) {
+  JsonWatcher.prototype.updateFile = function (done, callback, tryTimes) {
     var self = this;
+
+    // In case of a JSON parse error, we will try again but only 10 times
+    tryTimes = tryTimes || 0;
 
     // Update and set position
     var bufferSize = this.stat.size;
@@ -266,7 +269,12 @@
       try {
         callback(self.emit.bind(self, 'update', JSON.parse(content)));
       } catch (e) {
-        callback(self.emit.bind(self, 'error', e));
+        // try again (hopefully the content has changed)
+        if (tryTimes === 10) {
+          callback(self.emit.bind(self, 'error', e));
+        } else {
+          return self.updateFile(done, callback, tryTimes + 1);
+        }
       }
 
       // read again if there is a query
