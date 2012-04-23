@@ -52,9 +52,14 @@ The function takes an optional `options` argument there can contain the followin
 | **relay**        | Boolean  | when `true` output from process writen to the parent, `development` strategy only. | `true`                   |
 | **bufferLength** | Number   |the maximal size of the error buffer in the daemon process                          | `1048576` Byte or `1 MB` |
 
-Note when using the default monitor the `options` object must contain a `output` property
-there is a existing path to output file. The file is created if it don't exist but the folders
-is not.
+When useing the default monitor, you should set the following `options`:
+
+|                  | **type** | **description**                                                                    | **default**              |
+|-----------------:|:---------|:-----------------------------------------------------------------------------------|:-------------------------|
+| **pidFile**      | Filepath | Path to a JSON pid file, there contains a daemon, monitor and process properties.  | error                    |
+| **output**       | Filepath | All process stdout and stderr output including downtime logs will be stored here.  | error                    |
+
+The default monitor option properties can also be set to `null`, in that case there will be no file.
 
 An very simple example using the build in monitor to start a daemon:
 
@@ -63,7 +68,8 @@ var immortal = require('immortal');
 var child = immortal.start('process.js', {
   strategy: 'daemon',
   options: {
-    output: './output.log'
+    output: './output.log',
+    pidFile: './output.pid'
   }
 }, function (err) {
   if (err) throw err;
