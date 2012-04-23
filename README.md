@@ -11,12 +11,15 @@
 
 ## Supported by
 
-|              | **Mac OS X** | **Linux**    | **Windows** |
-|-------------:|:------------:|:------------:|:-----------:|
-| **node 0.7** | confirmed    | confirmed    | confirmed   |
-| **node 0.6** | confirmed*   | confirmed*   | confirmed   |
-| **node 0.4** | confirmed*   | confirmed*   | never       |
+|              | **Mac OS X**          | **Linux**    | **Windows** |
+|-------------:|:---------------------:|:---------------------:|:-----------------------:|
+| **node 0.7** | confirmed and tested  | confirmed and tested  | confirmed and tested    |
+| **node 0.6** | confirmed and tested* | confirmed and tested* | confirmed and tested    |
+| **node 0.4** | confirmed*            | confirmed*            | never                   |
 
+> Please note that the testsuite only works on node 0.6 and 0.7 because of the modules used
+> by the testcase. Immortal is only roughly tested in this environment.
+>
 > _*Okay so I will be honest in some situations a binary prebuild subroutine is used however
 > this has nothing to do with node, so there shouldn't be any issues. If there are please
 > file an issue._
