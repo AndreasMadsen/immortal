@@ -17,6 +17,9 @@
   exports.root = path.join(path.dirname(module.filename), '../');
   var testDir = path.join(exports.root, 'test');
 
+  // immortal path
+  exports.immortal = path.join(exports.root, 'lib/module.js');
+
   // Filepath resolvers
   exports.temp = function (filename) {
     return path.join(testDir, 'temp', filename);

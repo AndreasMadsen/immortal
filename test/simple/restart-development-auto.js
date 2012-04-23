@@ -5,6 +5,7 @@
 
 var vows = require('vows'),
     assert = require('assert'),
+
     common = require('../common.js'),
     prope = require(common.watcher('interface.js'));
 

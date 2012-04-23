@@ -8,9 +8,9 @@ var vows = require('vows'),
     fs = require('fs'),
     assert = require('assert'),
     execFile = require('child_process').execFile,
-    immortal = require('immortal'),
 
     common = require('../common.js'),
+    immortal = require(common.immortal),
     helpers = require(path.join(common.root, '/lib/helpers.js'));
 
 var isWin = process.platform === 'win32',

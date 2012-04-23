@@ -8,9 +8,9 @@
 
   var util = require('util');
   var thintalk = require('thintalk');
-  var immortal = require('immortal');
 
   var common = require('../common.js');
+  var immortal = require(common.immortal);
 
   function Monitor() {
     immortal.MonitorAbstract.apply(this, arguments);

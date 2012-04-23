@@ -6,9 +6,10 @@
 var fs = require('fs'),
     vows = require('vows'),
     assert = require('assert'),
-    immortal = require('immortal'),
 
-    common = require('../common.js');
+    common = require('../common.js'),
+    immortal = require(common.immortal);
+
 
 var outputFile = common.temp('output.txt');
 var pidFile = common.temp('daemon.txt');

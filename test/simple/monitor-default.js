@@ -6,9 +6,9 @@
 var fs = require('fs'),
     vows = require('vows'),
     assert = require('assert'),
-    immortal = require('immortal'),
 
     common = require('../common.js'),
+    immortal = require(common.immortal),
     propes = require(common.watcher('filewatch.js'));
 
 var outputFile = common.temp('output.txt');

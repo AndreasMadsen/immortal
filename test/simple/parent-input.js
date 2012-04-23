@@ -3,10 +3,11 @@
  * MIT License
  */
 
-var common = require('../common'),
-  immortal = require('immortal'),
-  vows = require('vows'),
-  assert = require('assert');
+var vows = require('vows'),
+    assert = require('assert'),
+
+    common = require('../common'),
+    immortal = require(common.immortal);
 
 vows.describe('immortal input check').addBatch({
 

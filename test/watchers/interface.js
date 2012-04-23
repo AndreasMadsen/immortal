@@ -10,9 +10,10 @@
   var path = require('path');
   var events = require('events');
   var thintalk = require('thintalk');
-  var immortal = require('immortal');
 
   var common = require('../common.js');
+  var immortal = require(common.immortal);
+
   var helpers = require(path.join(common.root, 'lib', 'helpers.js'));
   var streams = helpers.core('streams');
 
