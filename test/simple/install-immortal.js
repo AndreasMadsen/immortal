@@ -8,11 +8,14 @@ var vows = require('vows'),
     fs = require('fs'),
     assert = require('assert'),
     execFile = require('child_process').execFile,
+    immortal = require('immortal'),
 
     common = require('../common.js'),
     helpers = require(path.join(common.root, '/lib/helpers.js'));
 
 var isWin = process.platform === 'win32',
+    outputFile = common.temp('output.txt'),
+    pidFile = common.temp('daemon.txt'),
     setup = path.join(common.root, '/src/setup.js'),
     symlink = helpers.executable('execute');
 
@@ -31,7 +34,33 @@ function installImmortal(callback) {
 // remove symlink
 if (common.existsSync(symlink)) fs.unlinkSync(symlink);
 
-vows.describe('testing npm install').addBatch({
+var test = vows.describe('testing npm install');
+
+if (isWin === false) {
+  test.addBatch({
+    'when executeing immortal without a symlink': {
+      topic: function () {
+        var self = this;
+
+        immortal.start(common.fixture('pingping.js'), {
+          strategy: 'development',
+          options: {
+            output: outputFile,
+            pidFile: pidFile
+          }
+        }, function (error) {
+          self.callback(error, null);
+        });
+      },
+
+      'an error should be returned': function (error, num) {
+        assert.equal(error.message, 'npm install was not executed');
+      }
+    }
+  });
+}
+
+test.addBatch({
 
   'when executeing npm install': {
     topic: function () {
@@ -51,7 +80,9 @@ vows.describe('testing npm install').addBatch({
     }
   }
 
-}).addBatch({
+});
+
+test.addBatch({
 
   'when executeing npm install again': {
     topic: function () {
@@ -71,4 +102,6 @@ vows.describe('testing npm install').addBatch({
     }
   }
 
-}).exportTo(module);
+});
+
+test.exportTo(module);
