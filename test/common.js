@@ -35,8 +35,8 @@
   };
 
   // create temp file if missing
-  if (!exports.existsSync(exports.fixture())) {
-    fs.mkdirSync(exports.temp, "755");
+  if (!exports.existsSync(exports.temp())) {
+    fs.mkdirSync(exports.temp(), "755");
   }
 
   // extend options
