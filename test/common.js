@@ -9,19 +9,67 @@
   var path = require('path');
   var fs = require('fs');
 
+  // fs exists
+  exports.existsSync = fs.existsSync || path.existsSync;
+  exports.exists = fs.exists || path.exists;
+
   // get test folders
   exports.root = path.join(path.dirname(module.filename), '../');
-  exports.test = path.join(exports.root, 'test');
-  exports.fixture = path.join(exports.test, 'fixture');
-  exports.simple = path.join(exports.test, 'simple');
-  exports.temp = path.join(exports.test, 'temp');
+  var testDir = path.join(exports.root, 'test');
 
-  exports.module = path.join(exports.root, 'lib/module.js');
+  // immortal path
+  exports.immortal = path.join(exports.root, 'lib/module.js');
+
+  // Filepath resolvers
+  exports.temp = function (filename) {
+    return path.join(testDir, 'temp', filename);
+  };
+  exports.fixture = function (filename) {
+    return path.join(testDir, 'fixture', filename);
+  };
+  exports.simple = function (filename) {
+    return path.join(testDir, 'simple', filename);
+  };
+  exports.watcher = function (filename) {
+    return path.join(testDir, 'watchers', filename);
+  };
 
   // create temp file if missing
-  var exists = fs.existsSync || path.existsSync;
-  if (!exists(exports.temp)) {
-    fs.mkdirSync(exports.temp, "755");
+  if (!exports.existsSync(exports.temp())) {
+    fs.mkdirSync(exports.temp(), "755");
   }
+
+  // extend options
+  exports.extend = function(origin, add) {
+    // Don't do anything if add isn't an object
+    if (!add) return origin;
+
+    var keys = Object.keys(add);
+    var i = keys.length;
+    while (i--) {
+      origin[keys[i]] = add[keys[i]];
+    }
+    return origin;
+  };
+
+  // check if pid process alive
+  exports.isAlive = function (pid) {
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  // copy object
+  exports.copy = function (object) {
+    return exports.extend({}, object);
+  };
+
+  // test sockets
+  var isWin = process.platform === 'win32';
+  exports.outputSocket = isWin ? 9002 : exports.temp('output');
+  exports.inputSocket = isWin ? 9001 : exports.temp('input');
 
 })();

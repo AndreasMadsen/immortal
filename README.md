@@ -11,12 +11,15 @@
 
 ## Supported by
 
-|              | **Mac OS X** | **Linux**    | **Windows** |
-|-------------:|:------------:|:------------:|:-----------:|
-| **node 0.7** | confirmed    | confirmed    | confirmed   |
-| **node 0.6** | confirmed*   | confirmed*   | confirmed   |
-| **node 0.4** | confirmed*   | confirmed*   | never       |
+|              | **Mac OS X**        | **Linux**           | **Windows**        |
+|-------------:|:-------------------:|:-------------------:|:------------------:|
+| **node 0.7** | testsuite: 183/183  | testsuite: 183/183  | testsuite: 162/183 |
+| **node 0.6** | testsuite: 183/183* | testsuite: 183/183* | testsuite: 162/183 |
+| **node 0.4** | manual confirmed*   | manual confirmed*   | never              |
 
+> Please note that the testsuite in node 0.4 don't work because of the module dependencies
+> immortal is only roughly tested in this environment.
+>
 > _*Okay so I will be honest in some situations a binary prebuild subroutine is used however
 > this has nothing to do with node, so there shouldn't be any issues. If there are please
 > file an issue._
@@ -40,20 +43,26 @@ when the process is executed and property deattached from its parent if necessar
 
 The function takes an optional `options` argument there can contain the following properties:
 
-* **args:** the arguments the new process will be executed with.
-* **exec:** the file there will be executed - it will default to process.execPath.
-* **env:** the envorment the new process will run in.
-* **stategy:** this can be `development`, `unattached` or `daemon`.
-* **monitor:** path or name of module where a monitor module exist, this will default to an
-  simple monitor module there already exist. But it will simply log the output to a file,
-  should you wish anything more you will have to create you own. You can also set it to `null`
-  then the output won't be logged.
-* **options:** this are extra options parsed to the monitor object.
-* **auto:** when set to false the child will not auto restart when it dies.
+|                  | **type** | **description**                                                                    | **default**              |
+|-----------------:|:---------|:-----------------------------------------------------------------------------------|:-------------------------|
+| **args**         | Array    | the arguments the new process will be executed with.                               | `[]`                     |
+| **exec**         | Filepath | the file there will be executed                                                    | `process.execPath`       |
+| **env**          | Object   | the envorment the new process will run in.                                         | `process.env`            |
+| **stategy**      | String   | this can be `development`, `unattached` or `daemon`.                               | `unattached`             |
+| **monitor**      | Filepath | filepath to monitor module.                                                        | very simple monitor file |
+| **options**      | Object   | extra options parsed to the monitor object.                                        | `{}`                     |
+| **auto**         | Boolean  | when `true` the child will auto restart when it dies.                              | `true`                   |
+| **relay**        | Boolean  | when `true` output from process writen to the parent, `development` strategy only. | `true`                   |
+| **bufferLength** | Number   |the maximal size of the error buffer in the daemon process                          | `1048576` Byte or `1 MB` |
 
-Note when using the default monitor the `options` object must contain a `output` property
-there is a existing path to output file. The file is created if it don't exist but the folders
-is not.
+When useing the default monitor, you should set the following `options`:
+
+|                  | **type** | **description**                                                                    | **default**              |
+|-----------------:|:---------|:-----------------------------------------------------------------------------------|:-------------------------|
+| **pidFile**      | Filepath | Path to a JSON pid file, there contains a daemon, monitor and process properties.  | error                    |
+| **output**       | Filepath | All process stdout and stderr output including downtime logs will be stored here.  | error                    |
+
+The default monitor option properties can also be set to `null`, in that case there will be no file.
 
 An very simple example using the build in monitor to start a daemon:
 
@@ -62,7 +71,8 @@ var immortal = require('immortal');
 var child = immortal.start('process.js', {
   strategy: 'daemon',
   options: {
-    output: './output.log'
+    output: './output.log',
+    pidFile: './output.pid'
   }
 }, function (err) {
   if (err) throw err;
@@ -140,7 +150,7 @@ When the `Monitor` constrcutor is called it will by default have:
 * `this.error` in case the monitor was restarted all `stderr` output
    from prevouse `pump` process is contained in this property.
 * `this.pid` an object containing pid information about the immortal group.
-* `this.settings` an object containg the properties `file`, `args` and `env`
+* `this.settings` an object containg the properties `exec`, `file`, `args`, and `env`
    descriping how the child process has been exeuted.
 * `this.strategy` contain the strategy option.
 
@@ -251,8 +261,14 @@ becore it is spawned and `daemon` will be null if the daemon strategy isn't used
 Immortal start the deamon and all the other nessarry in a new session. This deattach
 them totally from the parent there called `immortal.start`, so when killing the immortal
 process group the parent is not affected. However the Monitor can also shutdown by
-executeing `this.shutdown()` from the Monitor. When executeing this function a `SIGTERM`
-signal is send to every process in the group and nothing will restart.
+executeing `this.shutdown([callback])` from the Monitor. When executeing this function
+a `SIGTERM` signal is send to every process in the group and nothing will restart.
+
+#### restart child process
+
+To restart the child process manually use `this.restart()`. This can be used
+to take control of the restart strategy if it is used in combination with `auto`
+setting set to `false`.
 
 ##License
 
