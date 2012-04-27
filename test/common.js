@@ -66,5 +66,10 @@
   exports.copy = function (object) {
     return exports.extend({}, object);
   };
-
+  
+  // test sockets
+  var isWin = process.platform === 'win32';
+  exports.outputSocket = isWin ? 9002 : common.temp('output');
+  exports.inputSocket = isWin ? 9001 : common.temp('input');
+  
 })();

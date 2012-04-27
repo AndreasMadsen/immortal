@@ -18,7 +18,7 @@
 
     // Create RPC client
     this.requester = thintalk();
-    this.requester.connect('TCP', common.temp('output'));
+    this.requester.connect('TCP', common.outputSocket);
 
     // Create RPC server
     this.listener = thintalk({
@@ -77,7 +77,7 @@
 
     // Start monitor server once connection is made
     this.requester.once('connect', function (remote) {
-      self.listener.listen('TCP', common.temp('input'));
+      self.listener.listen('TCP', common.inputSocket);
 
       self.listener.once('listening', function () {
         remote.pleaseConnect(function () {

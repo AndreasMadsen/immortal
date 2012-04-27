@@ -32,7 +32,7 @@
         var client = this;
         var requester = thintalk();
 
-        requester.connect('TCP', common.temp('input'));
+        requester.connect('TCP', common.inputSocket);
 
         requester.on('connect', function (remote) {
           var reconnect = (!!prope);
@@ -62,7 +62,7 @@
         });
       }
     });
-    listener.listen('TCP', common.temp('output'));
+    listener.listen('TCP', common.outputSocket);
 
     // When listener is ready start immortal
     listener.once('listening', function () {
