@@ -54,9 +54,12 @@
 
       // monitor event emitted
       emit: function (name, state, pid) {
-        prope.pid[name] = pid;
-        prope.emit(name, state);
-        this.callback();
+        var self = this;
+        process.nextTick(function () {
+          prope.pid[name] = pid;
+          prope.emit(name, state);
+          self.callback();
+        });
       }
     });
     listener.listen('TCP', common.temp('output'));

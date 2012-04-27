@@ -140,15 +140,17 @@ vows.describe('testing monitor abstact').addBatch({
   'when shutting down the immortal group': {
     topic: function () {
       var self = this;
+      var processPid = monitor.pid.process;
+
       monitor.shutdown(function () {
-        self.callback(null, monitor);
+        self.callback(null, monitor, processPid);
       });
     },
 
     'process event should emit': {
-      topic: function (monitor) {
+      topic: function (monitor, processPid) {
         var self = this;
-        var processPid = monitor.pid.process;
+
         monitor.once('process', function (state) {
           self.callback(null, monitor, state, processPid);
         });
