@@ -13,8 +13,8 @@
 
 |              | **Mac OS X**        | **Linux**           | **Windows**        |
 |-------------:|:-------------------:|:-------------------:|:------------------:|
-| **node 0.7** | testsuite: 187/187  | testsuite: 187/187  | testsuite: 166/187 |
-| **node 0.6** | testsuite: 187/187* | testsuite: 187/187* | testsuite: 166/187 |
+| **node 0.7** | testsuite: 187/187  | testsuite: 187/187  | testsuite: 182/187 |
+| **node 0.6** | testsuite: 187/187* | testsuite: 187/187* | testsuite: 182/187 |
 | **node 0.4** | manual confirmed*   | manual confirmed*   | never              |
 
 > Please note that the testsuite in node 0.4 don't work because of the module dependencies

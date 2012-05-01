@@ -76,21 +76,27 @@
         self.updateStat(function () {
 
           // Start file a watcher
-          self.stream = fs.watch(self.filepath, { persistent: true }, function (event) {
-            if (event === 'change') {
-
-              // push to query
-              self.query += 1;
-
-              // update stat
-              if (self.reading === false) {
-                self.updateStat();
+          if (process.platform !== 'win32') {
+            self.stream = fs.watch(self.filepath, { persistent: true }, function (event) {
+              if (event === 'change') {
+                self.pushQuery();
               }
-            }
-          });
+            });
+          }
+
         });
       });
     });
+  };
+
+  FileWatcher.prototype.pushQuery = function (callback) {
+    // push to query
+    this.query += 1;
+
+    // update stat
+    if (this.reading === false) {
+      this.updateStat();
+    }
   };
 
   FileWatcher.prototype.updateStat = function (callback) {
@@ -126,15 +132,7 @@
     fs.fstat(this.fd, function (error, stat) {
       if (error) return self.emit('error', error);
 
-      var current = self.stat;
       self.stat = stat;
-
-      // save as old and new if this is the first read
-      if (current === null) {
-        return handle();
-      }
-
-      // if the file has been modified update stats and execute callback
       return handle();
     });
   };
@@ -142,13 +140,28 @@
   // store lines in cache
   FileWatcher.prototype.pause = function () {
     this.paused = true;
+
+    if (process.platform === 'win32') {
+      clearTimeout(this.stream);
+    }
   };
 
   // drain cache and discontinue line storeing
   FileWatcher.prototype.resume = function () {
+    var self = this;
+
     this.paused = false;
     while (this.cache.length !== 0 && this.paused === false) {
       this.cache.splice(0, 1)[0]();
+    }
+
+    if (process.platform === 'win32') {
+      self.stream = setTimeout(function check(event) {
+        if (self.fd) {
+          self.pushQuery();
+          setTimeout(check, 150);
+        }
+      }, 150);      
     }
   };
 
@@ -159,7 +172,11 @@
 
     this.stoped = true;
     if (this.stream) {
-      this.stream.close();
+      if (process.platform = 'win32') {
+        clearTimeout(this.stream);
+      } else {
+        this.stream.close();        
+      }
       this.stream = null;
     }
     if (this.fd) {
@@ -208,7 +225,10 @@
 
       // read by each line
       while ((i = self.buffer.indexOf('\n', start)) >= 0) {
-        var line = self.buffer.slice(start, i);
+
+        var returnChar = (self.buffer[i - 1] === '\r') ? 1 : 0;
+
+        var line = self.buffer.slice(start, i - returnChar);
 
         // emit line event or add to cache
         callback(self.emit.bind(self, 'line', line));
