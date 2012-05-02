@@ -172,9 +172,7 @@
 
     this.stoped = true;
     if (this.stream) {
-      if (process.platform = 'win32') {
-        clearTimeout(this.stream);
-      } else {
+      if (process.platform !== 'win32') {
         this.stream.close();        
       }
       this.stream = null;
