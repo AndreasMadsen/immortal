@@ -186,9 +186,10 @@ vows.describe('testing daemon restart with auto:true').addBatch({
     topic: function () {
       var self = this;
       var pids = common.copy(monitor.pid);
-      process.nextTick(function () {
+      
+      setTimeout(function () {
         process.kill(monitor.pid.monitor, 'SIGTERM');
-      });
+      }, 200);
 
       monitor.once('reconnect', function () {
         self.callback(null, monitor, pids);
