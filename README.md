@@ -35,7 +35,7 @@ npm install immortal
 To start a new process simply use: `immortal.start(file, [options], callback)`.
 
 This function will start a new process, but unlike the `.spawn()` or `.fork()` method
-given my node core, the new process will be by default be detached from its parent. And
+given by node core, the new process will be by default be detached from its parent. And
 a monitor process will keep track of it instead. This allow the parent to die graceful.
 
 The `callback` is executed when a function argument or option is found invalid or
