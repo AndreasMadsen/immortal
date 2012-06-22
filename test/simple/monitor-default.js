@@ -11,6 +11,8 @@ var fs = require('fs'),
     immortal = require(common.immortal),
     propes = require(common.watcher('filewatch.js'));
 
+common.reset();
+
 var outputFile = common.temp('output.txt');
 var pidFile = common.temp('daemon.txt');
 

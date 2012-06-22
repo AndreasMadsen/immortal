@@ -9,6 +9,8 @@ var vows = require('vows'),
     common = require('../common.js'),
     prope = require(common.watcher('interface.js'));
 
+common.reset();
+
 var preOption = {
   strategy: 'daemon',
   auto: false
@@ -193,7 +195,7 @@ vows.describe('testing daemon restart with auto:false').addBatch({
     topic: function () {
       var self = this;
       var pids = common.copy(monitor.pid);
-      
+
       setTimeout(function () {
         process.kill(monitor.pid.monitor, 'SIGTERM');
       }, 200);

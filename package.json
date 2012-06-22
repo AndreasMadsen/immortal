@@ -21,7 +21,8 @@
   ],
   "devDependencies": {
     "vows" :  "0.6.x",
-    "thintalk": "0.3.x"
+    "thintalk": "0.3.x",
+    "wrench" : "1.3.x"
   },
   "license": "MIT",
   "engines": {

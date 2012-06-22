@@ -8,6 +8,8 @@ var vows = require('vows'),
     common = require('../common.js'),
     prope = require(common.watcher('interface.js'));
 
+common.reset();
+
 function startImmortal(callback) {
   prope.createInterface(common.fixture('output.js'), {
     strategy: 'development',

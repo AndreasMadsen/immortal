@@ -13,6 +13,8 @@ var vows = require('vows'),
     immortal = require(common.immortal),
     helpers = require(path.join(common.root, '/lib/helpers.js'));
 
+common.reset();
+
 var isWin = process.platform === 'win32',
     outputFile = common.temp('output.txt'),
     pidFile = common.temp('daemon.txt'),

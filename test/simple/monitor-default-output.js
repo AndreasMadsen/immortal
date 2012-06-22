@@ -10,6 +10,7 @@ var fs = require('fs'),
     common = require('../common.js'),
     immortal = require(common.immortal);
 
+common.reset();
 
 var outputFile = common.temp('output.txt');
 var pidFile = common.temp('daemon.txt');

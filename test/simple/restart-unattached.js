@@ -9,6 +9,8 @@ var vows = require('vows'),
     common = require('../common.js'),
     prope = require(common.watcher('interface.js'));
 
+common.reset();
+
 var preOption = {
   strategy: 'unattached',
   auto: false

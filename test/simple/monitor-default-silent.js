@@ -11,6 +11,8 @@ var fs = require('fs'),
     immortal = require(common.immortal),
     child_process = require('child_process');
 
+common.reset();
+
 var outputFile = common.temp('output.txt');
 var pidFile = common.temp('daemon.txt');
 
@@ -25,14 +27,14 @@ vows.describe('testing default monitor with no output or pidFile').addBatch({
   'when starting immortal': {
     topic: function () {
       var self = this;
-      
+
       sandbox = child_process.spawn(process.execPath, [ common.fixture('sandbox.js') ]);
-      
+
       var out = function (chunk) {
         self.callback(null, chunk);
         sandbox.stderr.removeListener('data', err);
       };
-      
+
       var err = function (chunk) {
         self.callback(chunk, null);
         sandbox.stdout.removeListener('data', out);
@@ -60,11 +62,11 @@ vows.describe('testing default monitor with no output or pidFile').addBatch({
   'cleanup: when trying to kill all pids': {
     topic: function () {
       var self = this;
-      
+
       // in theory a SIGPIPE should be propergated though the immortal group
       // once the parent dies
       sandbox.kill();
-      
+
       sandbox.once('exit', this.callback.bind(this, null, sandbox.pid));
     },
 

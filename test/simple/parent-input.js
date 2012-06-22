@@ -9,6 +9,8 @@ var vows = require('vows'),
     common = require('../common'),
     immortal = require(common.immortal);
 
+common.reset();
+
 vows.describe('immortal input check').addBatch({
 
   'when callback is missing': {

@@ -6,6 +6,7 @@
 (function () {
   "use strict";
 
+  var wrench = require('wrench');
   var path = require('path');
   var fs = require('fs');
 
@@ -65,6 +66,16 @@
   // copy object
   exports.copy = function (object) {
     return exports.extend({}, object);
+  };
+
+  exports.reset = function () {
+    var temp = path.join(testDir, 'temp');
+
+    if (exports.existsSync(temp)) {
+      wrench.rmdirSyncRecursive(temp);
+    }
+
+    fs.mkdirSync(temp);
   };
 
   // test sockets
