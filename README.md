@@ -13,7 +13,7 @@
 
 |              | **Mac OS X**        | **Linux**           | **Windows**        |
 |-------------:|:-------------------:|:-------------------:|:------------------:|
-| **node 0.8** | testsuite: 113/187* | testsuite: 113/187* | testsuite: 113/187 |
+| **node 0.8** | testsuite: 187/187* | testsuite: 177/187* | testsuite: 177/187 |
 | **node 0.6** | testsuite: 187/187* | testsuite: 187/187* | testsuite: 187/187 |
 | **node 0.4** | manual confirmed*   | manual confirmed*   | never              |
 
