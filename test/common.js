@@ -79,8 +79,7 @@
   };
 
   // test sockets
-  var isWin = process.platform === 'win32';
-  exports.outputSocket = isWin ? 9002 : exports.temp('output');
-  exports.inputSocket = isWin ? 9001 : exports.temp('input');
+  exports.outputSocket = 9002;
+  exports.inputSocket = 9001;
 
 })();
