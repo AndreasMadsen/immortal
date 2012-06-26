@@ -11,6 +11,9 @@ var vows = require('vows'),
 
 common.reset();
 
+// vows hack
+process.stdout.setMaxListeners(11);
+
 function startImmortal(callback) {
   prope.createInterface(common.fixture('longlive.js'), {
     strategy: 'daemon',

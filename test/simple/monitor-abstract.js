@@ -42,7 +42,6 @@ vows.describe('testing monitor abstact').addBatch({
       assert.ifError(error);
       assert.deepEqual(monitor.settings, {
         file: common.fixture('output.js'),
-        exec: process.execPath,
         args: ['value1', 'value2'],
         env: process.env
       });
