@@ -1,7 +1,7 @@
 {
   "name": "immortal",
   "description": "Daemon tool made in pure javascript",
-  "version": "0.5.8",
+  "version": "0.6.0",
   "author": "Andreas Madsen <amwebdk@gmail.com>",
   "scripts": {
     "test": "vows test/simple/* --spec --isolate",
@@ -19,6 +19,9 @@
     "immortal",
     "restart"
   ],
+  "dependencies": {
+    "equilibrium": "0.2.1"
+  },
   "devDependencies": {
     "vows" :  "0.6.x",
     "thintalk": "0.3.x",

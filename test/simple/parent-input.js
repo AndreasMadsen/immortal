@@ -38,29 +38,14 @@ vows.describe('immortal input check').addBatch({
       immortal.start(common.fixture('missing.js'), {
         strategy: 'development',
         options: {
-          output: common.temp('should_not_exists')
+          output: common.temp('should_not_exists'),
+          pidFile: common.temp('should_not_exists')
         }
       },this.callback);
     },
     'it should fail because of missing file': function (respons, err) {
       assert.ifError(err);
       assert.equal(respons.message, 'file was not found (' + common.fixture('missing.js') + ')');
-    }
-  },
-
-  'when execute file do not exists': {
-    topic: function () {
-      immortal.start(common.fixture('longlive.js'), {
-        strategy: 'development',
-        exec: common.fixture('missing.js'),
-        options: {
-          output: common.temp('should_not_exists')
-        }
-      },this.callback);
-    },
-    'it should fail because of missing file': function (respons, err) {
-      assert.ifError(err);
-      assert.equal(respons.message, 'exec was not found (' + common.fixture('missing.js') + ')');
     }
   },
 
@@ -75,19 +60,6 @@ vows.describe('immortal input check').addBatch({
       'it will fail': function (respons, err) {
         assert.ifError(err);
         assert.equal(respons.message, 'options.args must be an array');
-      }
-    },
-
-    'exec is not a string': {
-      topic: function () {
-        immortal.start(common.fixture('missing.js'), {
-          strategy: 'development',
-          exec: false
-        }, this.callback);
-      },
-      'it will fail': function (respons, err) {
-        assert.ifError(err);
-        assert.equal(respons.message, 'options.exec must be a string');
       }
     },
 
