@@ -89,12 +89,12 @@ function addTestSeries() {
     'when immortal stops': {
       topic: function () {
         var self = this;
-        var pids = common.copy(monitor.pid);;
+        var pids = common.copy(monitor.pid);
         monitor.shutdown(function () {
           monitor.close(function () {
             setTimeout(function () {
               self.callback(null, monitor, pids);
-            }, 100);
+            }, 400);
           });
         });
       },
