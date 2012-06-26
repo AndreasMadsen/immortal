@@ -19,6 +19,9 @@
     "immortal",
     "restart"
   ],
+  "dependencies": {
+    "equilibrium": "0.2.1"
+  },
   "devDependencies": {
     "vows" :  "0.6.x",
     "thintalk": "0.3.x",

@@ -38,7 +38,8 @@ vows.describe('immortal input check').addBatch({
       immortal.start(common.fixture('missing.js'), {
         strategy: 'development',
         options: {
-          output: common.temp('should_not_exists')
+          output: common.temp('should_not_exists'),
+          pidFile: common.temp('should_not_exists')
         }
       },this.callback);
     },
@@ -54,7 +55,8 @@ vows.describe('immortal input check').addBatch({
         strategy: 'development',
         exec: common.fixture('missing.js'),
         options: {
-          output: common.temp('should_not_exists')
+          output: common.temp('should_not_exists'),
+          pidFile: common.temp('should_not_exists')
         }
       },this.callback);
     },
