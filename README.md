@@ -13,7 +13,7 @@
 
 |              | **Mac OS X**        | **Linux**           | **Windows**        |
 |-------------:|:-------------------:|:-------------------:|:------------------:|
-| **node 0.8** | testsuite: 187/187* | testsuite: 187/187* | testsuite: 187/187 |
+| **node 0.8** | testsuite: 187/187  | testsuite: 187/187  | testsuite: 187/187 |
 | **node 0.6** | testsuite: 187/187* | testsuite: 187/187* | testsuite: 187/187 |
 | **node 0.4** | manual confirmed*   | manual confirmed*   | never              |
 
@@ -39,7 +39,7 @@ given by node core, the new process will be by default be detached from its pare
 a monitor process will keep track of it instead. This allow the parent to die graceful.
 
 The `callback` is executed when a function argument or option is found invalid or
-when the process is executed and property deattached from its parent if necessary.
+when the process is executed and property unattached from its parent if necessary.
 
 The function takes an optional `options` argument there can contain the following properties:
 
@@ -258,7 +258,7 @@ becore it is spawned and `daemon` will be null if the daemon strategy isn't used
 
 #### shutdown process group
 
-Immortal start the deamon and all the other nessarry in a new session. This deattach
+Immortal start the deamon and all the other nessarry in a new session. This unattach
 them totally from the parent there called `immortal.start`, so when killing the immortal
 process group the parent is not affected. However the Monitor can also shutdown by
 executeing `this.shutdown([callback])` from the Monitor. When executeing this function
