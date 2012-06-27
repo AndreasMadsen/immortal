@@ -9,7 +9,7 @@
   // windows do not require a native code
   if (process.platform === 'win32') {
     console.log('windows do not require any installation');
-    return;
+    process.exit(0); return;
   }
 
   var fs = require('fs');
@@ -25,6 +25,14 @@
   var green = esc + "[32m";
   var yellow = esc + "[33m";
 
+  // detect detached spawn support
+  if (helpers.support.detached) {
+    process.stdout.write(green);
+    console.log('your node version supports detached spawn');
+    process.stdout.write(reset);
+    process.exit(0); return;
+  }
+
   // platform map
   var platform = {
     linux64: 'linux',
@@ -38,9 +46,9 @@
   // check that os is supported
   var os = platform[process.platform];
   if (os === undefined) {
-    process.stdout.write(yellow);
+    process.stderr.write(yellow);
     console.error('you os ' + process.platform + ' is not supported, please file an issue');
-    process.stdout.write(reset);
+    process.stderr.write(reset);
 
     process.exit(1); return;
   }
@@ -51,11 +59,11 @@
 
   // print error text
   function printError(error) {
-    process.stdout.write(red);
+    process.stderr.write(red);
     console.error(error.trace);
-    process.stdout.write(yellow);
+    process.stderr.write(yellow);
     console.error('an error occurred, please file an issue');
-    process.stdout.write(reset);
+    process.stderr.write(reset);
     process.exit(1);
   }
 

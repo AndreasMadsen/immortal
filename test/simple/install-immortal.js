@@ -21,11 +21,14 @@ var isWin = process.platform === 'win32',
     setup = path.join(common.root, '/src/setup.js'),
     symlink = helpers.executable('execute');
 
-function installImmortal(callback) {
-  execFile(process.execPath, [ setup ], function (code, out, err) {
-    var output = err === '' ? out : err;
+var useSuplement = isWin === false && helpers.support.detached === false;
 
-    if (code === 1 || err !== '') {
+function installImmortal(callback) {
+  execFile(process.execPath, [ setup ], function (error, stdout, stderr) {
+    var output = stderr === '' ? stdout : stderr;
+    var code = error ? error.code : 0;
+
+    if (code === 1 || stderr !== '') {
       return callback(new Error(output || 'got error code 1'), null);
     }
 
@@ -38,7 +41,7 @@ if (common.existsSync(symlink)) fs.unlinkSync(symlink);
 
 var test = vows.describe('testing npm install');
 
-if (isWin === false) {
+if (useSuplement) {
   test.addBatch({
     'when executeing immortal without a symlink': {
       topic: function () {
@@ -75,10 +78,10 @@ test.addBatch({
       assert.isNull(dum);
     },
 
-    'the an symlink should exists on posix': isWin ? function () {
-      assert.isFalse(common.existsSync(symlink));
-    } : function () {
+    'the an symlink should exists on posix': useSuplement ? function () {
       assert.isTrue(common.existsSync(symlink));
+    } : function () {
+      assert.isFalse(common.existsSync(symlink));
     }
   }
 
@@ -97,10 +100,10 @@ test.addBatch({
       assert.isNull(dum);
     },
 
-    'the an symlink should exists on posix': isWin ? function () {
-      assert.isFalse(common.existsSync(symlink));
-    } : function () {
+    'the an symlink should exists on posix': useSuplement ? function () {
       assert.isTrue(common.existsSync(symlink));
+    } : function () {
+      assert.isFalse(common.existsSync(symlink));
     }
   }
 
