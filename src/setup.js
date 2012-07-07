@@ -14,7 +14,7 @@
 
   var fs = require('fs');
   var path = require('path');
-  var existsFile = fs.exists || path.exists;
+  var existsFile = fs.exists || fs.exists;
 
   var helpers = require('../lib/helpers.js');
 

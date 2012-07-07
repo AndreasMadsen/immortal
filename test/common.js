@@ -11,8 +11,8 @@
   var fs = require('fs');
 
   // fs exists
-  exports.existsSync = fs.existsSync || path.existsSync;
-  exports.exists = fs.exists || path.exists;
+  exports.existsSync = fs.existsSync || fs.existsSync;
+  exports.exists = fs.exists || fs.exists;
 
   // get test folders
   exports.root = path.join(path.dirname(module.filename), '../');
