@@ -12,7 +12,7 @@
 
   // fs exists
   exports.existsSync = fs.existsSync || path.existsSync;
-  exports.exists = fs.exists || path.exists;
+  exports.exists = fs.exists || fs.exists;
 
   // get test folders
   exports.root = path.join(path.dirname(module.filename), '../');
