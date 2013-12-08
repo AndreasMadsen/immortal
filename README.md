@@ -11,6 +11,8 @@
 
 ## Deprecated
 
+**No longer maintained. Pull requests will be reviewed and ownership is given if interest is shown.**
+
 At the time this module was written (`~ node 0.6`) there was no good solution for
 running unattached processes. However this feature is now native to node and with
 that comes much better ways of dealing with demonization than this solution.
