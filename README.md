@@ -9,6 +9,12 @@
 > code. It is the authors hope that other deamon modules will abstract upon this,
 > so the never ending deamon problem can be solved.
 
+## Deprecated
+
+At the time this module was written (`~ node 0.6`) there was no good solution for
+running unattached processes. However this feature is now native to node and with
+that comes much better ways of dealing with demonization than this solution.
+
 ## Supported by
 
 |              | **Mac OS X**        | **Linux**           | **Windows**        |
